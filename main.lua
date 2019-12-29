@@ -10,6 +10,7 @@
 
 local unitX = display.contentWidth / 1000.0;
 local unitY = display.contentHeight / 1000.0;
+local planet
 
 local function initBackground() 
     local background = display.newImageRect( "images/bg_blue.png", display.contentWidth, display.contentHeight )
@@ -27,7 +28,7 @@ local function initBackground()
 
     planet = display.newImageRect( "images/planet.png", unitX * 500, unitX * 500 )
     planet.x = display.contentCenterX
-    planet.y = display.contentCenterY
+    planet.y = display.contentCenterY + unitY * 100
 end
 initBackground()
 
@@ -49,3 +50,13 @@ local player = display.newSprite(playerSheet, {
 player:play()
 player.x = planet.x
 player.y = planet.y - planet.contentWidth / 2 - (unitX * 150 * 250 / 181 / 2)
+
+balloon = display.newImageRect( "images/balloon.png", unitX * 450, unitX * 320 )
+balloon.x = display.contentCenterX
+balloon.y = planet.y - (planet.contentHeight + unitX * 320) / 2 - player.contentHeight
+balloon.isVisible = false
+local function toggleBalloon()
+    balloon.isVisible = not balloon.isVisible
+end
+ 
+planet:addEventListener( "tap", toggleBalloon )
