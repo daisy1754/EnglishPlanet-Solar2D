@@ -27,8 +27,6 @@ function scene:create( event )
         starHeight = display.contentHeight
         if starWidth / starHeight < 1424 / 1751 then
             starHeight = starWidth * 1751 / 1424
-            print( starWidth)
-            print( starHeight)
         else
             starWidth = starHeight * 1424 / 1751
         end
@@ -77,7 +75,7 @@ function scene:create( event )
     player.x = planet.x
     player.y = planet.y - playerRadius
 
-    local alien
+    local alien1
     local alienRadius
     local function placeAlien()
         local width = unitX * 150
@@ -89,13 +87,20 @@ function scene:create( event )
             sheetContentHeight = height, 
             numFrames = 3,
         })
-        alien = display.newSprite(zoomableGroup, sheet, {
-            name = "walk",
-            start = 2,
-            count = 2,
-    
-            loopCount = 0,
-            time = 1000
+        local alien = display.newSprite(zoomableGroup, sheet, {
+            {
+                name = "walking",
+                start = 2,
+                count = 2,
+        
+                loopCount = 0,
+                time = 1000
+            },
+            {
+                name="still",
+                start=1,
+                count=1
+            }
         })
         -- TODO: かぶらないようにする
         while alien.rotation < 20 or alien.rotation > 340 do
@@ -110,6 +115,27 @@ function scene:create( event )
             alien.xScale = -1
         end
         alienRadius = radius
+        alien1 = alien
+
+        local function mayChangeMotion()
+            if math.random() < 0.2 then
+                if alien.sequence == "walking" then
+                    alien:setSequence("still")
+                end
+            else
+                if alien.sequence ~= "walking" then
+                    alien:setSequence("walking")
+                    alien:play()
+                end
+            end
+
+            if math.random() < 0.5 then
+                alien.xScale = -1
+            else
+                alien.xScale = 1
+            end
+        end
+        timer.performWithDelay(2000, mayChangeMotion, -1)
     end
     placeAlien()
     placeAlien()
@@ -142,11 +168,11 @@ function scene:create( event )
             player.y = planet.y - math.cos(math.rad(350)) * playerRadius
             player.rotation = 350
 
-            alien.x = planet.x + math.sin(math.rad(10)) * alienRadius
-            alien.y = planet.y - math.cos(math.rad(10)) * alienRadius
-            alien.rotation = 10
-            alien.xScale = -1
-            alien:pause()
+            alien1.x = planet.x + math.sin(math.rad(10)) * alienRadius
+            alien1.y = planet.y - math.cos(math.rad(10)) * alienRadius
+            alien1.rotation = 10
+            alien1.xScale = -1
+            alien1:pause()
         else
             transition.to( zoomableGroup, { time=300, transition=easing.inOutQuad, xScale=1, yScale=1, x=0} )
 
