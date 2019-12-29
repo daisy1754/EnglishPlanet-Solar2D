@@ -161,7 +161,9 @@ function scene:create( event )
     balloon.x = display.contentCenterX
     balloon.y = planet.y - (planet.contentHeight + balloonHeight) / 2 - player.contentHeight
     balloon.isVisible = false
-    local balloonText = display.newText( zoomableGroup, "ねえ apple ってどういういみだっけ?", planet.x, balloon.y, balloon.contentWidth - unitX * 120, balloon.contentHeight - unitY * 50, "fonts/PixelMplus12-Regular.ttf", 20 )
+    local balloonText = display.newText( zoomableGroup, "ねえ apple って どういう いみ だっけ?", 
+        planet.x, balloon.y, 
+        balloon.contentWidth - unitX * 120, balloon.contentHeight - unitY * 60, "fonts/PixelMplus12-Regular.ttf", 16 )
     balloonText:setFillColor( 0, 0, 0 )
     balloonText.isVisible = false
     local function toggleBalloon()
