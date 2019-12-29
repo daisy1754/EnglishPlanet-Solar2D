@@ -10,8 +10,10 @@ function scene:create( event )
     local unitX = display.contentWidth / 1000.0;
     local unitY = display.contentHeight / 1000.0;
     local planet
+    local stars
 
-    local bgGroup = display.newGroup(sceneGroup)
+    local bgGroup = display.newGroup()
+    local zoomableGroup = display.newGroup()
     local function initBackground() 
         local background = display.newImageRect( bgGroup, "images/bg_blue.png", display.contentWidth, display.contentHeight )
         background.x = display.contentCenterX
@@ -28,14 +30,14 @@ function scene:create( event )
         else
             starWidth = starHeight * 1424 / 1751
         end
-        local starts = display.newRect(bgGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
-        starts.fill = {type = "image", filename = "images/bg_stars.png" }
+        stars = display.newRect(bgGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+        stars.fill = {type = "image", filename = "images/bg_stars.png" }
         local function animateBackground()
-            transition.to( starts.fill, { time=30000, x=1, y=-0.6, delta=true, onComplete=animateBackground } )
+            transition.to( stars.fill, { time=30000, x=1, y=-0.6, delta=true, onComplete=animateBackground } )
         end
         animateBackground()
 
-        planet = display.newImageRect( "images/planet.png", unitX * 500, unitX * 500 )
+        planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 500, unitX * 500 )
         planet.x = display.contentCenterX
         planet.y = display.contentCenterY + unitY * 100
     end
@@ -50,7 +52,7 @@ function scene:create( event )
         sheetContentHeight = playerHeight, 
         numFrames = 2,
     })
-    local player = display.newSprite(playerSheet, {
+    local player = display.newSprite(zoomableGroup, playerSheet, {
         name = "standby",
         start = 1,
         count = 2,
@@ -72,7 +74,7 @@ function scene:create( event )
             sheetContentHeight = height, 
             numFrames = 3,
         })
-        local player = display.newSprite(sheet, {
+        local alien = display.newSprite(zoomableGroup, sheet, {
             name = "walk",
             start = 2,
             count = 2,
@@ -81,16 +83,16 @@ function scene:create( event )
             time = 1000
         })
         -- TODO: かぶらないようにする
-        while player.rotation < 20 or player.rotation > 340 do
-            player.rotation = math.random(360)
+        while alien.rotation < 20 or alien.rotation > 340 do
+            alien.rotation = math.random(360)
         end
 
-        player:play()
+        alien:play()
         radius = planet.contentWidth / 2 + (height / 2)
-        player.x = planet.x + math.sin(math.rad(player.rotation)) * radius
-        player.y = planet.y - math.cos(math.rad(player.rotation)) * radius
-        if player.rotation > 180 then
-            player.xScale = -1
+        alien.x = planet.x + math.sin(math.rad(alien.rotation)) * radius
+        alien.y = planet.y - math.cos(math.rad(alien.rotation)) * radius
+        if alien.rotation > 180 then
+            alien.xScale = -1
         end
     end
     placeAlien()
@@ -98,15 +100,31 @@ function scene:create( event )
     placeAlien()
     placeAlien()
 
-    local balloonGroup = display.newGroup(sceneGroup) 
+    local balloonGroup = display.newGroup() 
     balloonGroup.isVisible = false
-    balloon = display.newImageRect( balloonGroup, "images/balloon.png", unitX * 450, unitX * 320 )
+    balloon = display.newImageRect( zoomableGroup, "images/balloon.png", unitX * 450, unitX * 320 )
     balloon.x = display.contentCenterX
     balloon.y = planet.y - (planet.contentHeight + unitX * 320) / 2 - player.contentHeight
-    local balloonText = display.newText( balloonGroup, "ねえ apple ってどういういみだっけ?", planet.x, balloon.y, balloon.contentWidth - unitX * 30, balloon.contentHeight - unitY * 10, "fonts/PixelMplus12-Regular.ttf", 30 )
+    local balloonText = display.newText( zoomableGroup, "ねえ apple ってどういういみだっけ?", planet.x, balloon.y, balloon.contentWidth - unitX * 30, balloon.contentHeight - unitY * 10, "fonts/PixelMplus12-Regular.ttf", 30 )
     balloonText:setFillColor( 0, 0, 0 )
     local function toggleBalloon()
-        balloonGroup.isVisible = not balloonGroup.isVisible
+        balloon.isVisible = not balloon.isVisible
+        balloonText.isVisible = not balloonText.isVisible
+        stars.isVisible = not balloon.isVisible
+        local zoom = 2
+        if balloon.isVisible then
+            print(zoomableGroup.x)
+            transition.to( zoomableGroup, { 
+                time=500,
+                transition=easing.inOutQuad, 
+                xScale=zoom,
+                yScale=zoom,
+                -- ここのXの値よくわかってない
+                x= -zoomableGroup.contentWidth * 0.75 
+            } )
+        else
+            transition.to( zoomableGroup, { time=300, transition=easing.inOutQuad, xScale=1, yScale=1, x=0} )
+        end
     end
     
     planet:addEventListener( "tap", toggleBalloon )
