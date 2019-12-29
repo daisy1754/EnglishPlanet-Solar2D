@@ -37,6 +37,16 @@ function scene:create( event )
         end
         animateBackground()
 
+        local function placeIcon(src, index)
+            icon = display.newImageRect( bgGroup, src, unitX * 90, unitX * 90 )
+            icon.x = display.contentWidth - unitX * 120 * index - unitX * 80
+            icon.y = unitY * 70
+        end
+        placeIcon("images/icon_stars.png", 3)
+        placeIcon("images/icon_book.png", 2)
+        placeIcon("images/icon_screenshot.png", 1)
+        placeIcon("images/icon_settings.png", 0)
+
         planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 500, unitX * 500 )
         planet.x = display.contentCenterX
         planet.y = display.contentCenterY + unitY * 100
