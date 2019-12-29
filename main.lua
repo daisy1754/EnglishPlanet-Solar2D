@@ -51,12 +51,15 @@ player:play()
 player.x = planet.x
 player.y = planet.y - planet.contentWidth / 2 - (unitX * 150 * 250 / 181 / 2)
 
-balloon = display.newImageRect( "images/balloon.png", unitX * 450, unitX * 320 )
+local balloonGroup = display.newGroup() 
+balloonGroup.isVisible = false
+balloon = display.newImageRect( balloonGroup, "images/balloon.png", unitX * 450, unitX * 320 )
 balloon.x = display.contentCenterX
 balloon.y = planet.y - (planet.contentHeight + unitX * 320) / 2 - player.contentHeight
-balloon.isVisible = false
+local balloonText = display.newText( balloonGroup, "ねえ apple ってどういういみだっけ?", planet.x, balloon.y, balloon.contentWidth - unitX * 30, balloon.contentHeight - unitY * 10, "fonts/PixelMplus12-Regular.ttf", 30 )
+balloonText:setFillColor( 0, 0, 0 )
 local function toggleBalloon()
-    balloon.isVisible = not balloon.isVisible
+    balloonGroup.isVisible = not balloonGroup.isVisible
 end
  
 planet:addEventListener( "tap", toggleBalloon )
