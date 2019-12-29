@@ -11,14 +11,24 @@ function scene:create( event )
     local unitY = display.contentHeight / 1000.0;
     local planet
 
+    local bgGroup = display.newGroup(sceneGroup)
     local function initBackground() 
-        local background = display.newImageRect( "images/bg_blue.png", display.contentWidth, display.contentHeight )
+        local background = display.newImageRect( bgGroup, "images/bg_blue.png", display.contentWidth, display.contentHeight )
         background.x = display.contentCenterX
         background.y = display.contentCenterY
 
         display.setDefault("textureWrapX", "repeat")
         display.setDefault("textureWrapY", "repeat")
-        local starts = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+        starWidth = display.contentWidth
+        starHeight = display.contentHeight
+        if starWidth / starHeight < 1424 / 1751 then
+            starHeight = starWidth * 1751 / 1424
+            print( starWidth)
+            print( starHeight)
+        else
+            starWidth = starHeight * 1424 / 1751
+        end
+        local starts = display.newRect(bgGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
         starts.fill = {type = "image", filename = "images/bg_stars.png" }
         local function animateBackground()
             transition.to( starts.fill, { time=30000, x=1, y=-0.6, delta=true, onComplete=animateBackground } )
@@ -70,6 +80,7 @@ function scene:create( event )
             loopCount = 0,
             time = 1000
         })
+        -- TODO: かぶらないようにする
         while player.rotation < 20 or player.rotation > 340 do
             player.rotation = math.random(360)
         end
