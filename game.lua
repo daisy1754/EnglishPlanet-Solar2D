@@ -33,7 +33,7 @@ function scene:create( event )
         stars = display.newRect(bgGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
         stars.fill = {type = "image", filename = "images/bg_stars.png" }
         local function animateBackground()
-            transition.to( stars.fill, { time=30000, x=1, y=-0.6, delta=true, onComplete=animateBackground } )
+            transition.to( stars.fill, { time=20000, x=1, y=-0.3, delta=true, onComplete=animateBackground } )
         end
         animateBackground()
 
