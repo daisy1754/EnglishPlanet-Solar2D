@@ -31,11 +31,13 @@ function scene:create( event )
     end
     initBackground()
 
+    local playerWidth = unitX * 150
+    local playerHeight = playerWidth * 250 / 181
     local playerSheet = graphics.newImageSheet( "images/player_sheets.png", {
-        width = unitX * 150,
-        height = unitX * 150 * 250 / 181,
-        sheetContentWidth = unitX * 150 * 2,
-        sheetContentHeight = unitX * 150 * 250 / 181, 
+        width = playerWidth,
+        height = playerHeight,
+        sheetContentWidth = playerWidth * 2,
+        sheetContentHeight = playerHeight, 
         numFrames = 2,
     })
     local player = display.newSprite(playerSheet, {
@@ -48,9 +50,44 @@ function scene:create( event )
     })
     player:play()
     player.x = planet.x
-    player.y = planet.y - planet.contentWidth / 2 - (unitX * 150 * 250 / 181 / 2)
+    player.y = planet.y - planet.contentWidth / 2 - (playerHeight / 2)
 
-    local balloonGroup = display.newGroup() 
+    local function placeAlien()
+        local width = unitX * 150
+        local height = width * 167 / 177
+        local sheet = graphics.newImageSheet( "images/aliens/aliens01.png", {
+            width = width,
+            height = height,
+            sheetContentWidth = width * 3,
+            sheetContentHeight = height, 
+            numFrames = 3,
+        })
+        local player = display.newSprite(sheet, {
+            name = "walk",
+            start = 2,
+            count = 2,
+    
+            loopCount = 0,
+            time = 1000
+        })
+        while player.rotation < 20 or player.rotation > 340 do
+            player.rotation = math.random(360)
+        end
+
+        player:play()
+        radius = planet.contentWidth / 2 + (height / 2)
+        player.x = planet.x + math.sin(math.rad(player.rotation)) * radius
+        player.y = planet.y - math.cos(math.rad(player.rotation)) * radius
+        if player.rotation > 180 then
+            player.xScale = -1
+        end
+    end
+    placeAlien()
+    placeAlien()
+    placeAlien()
+    placeAlien()
+
+    local balloonGroup = display.newGroup(sceneGroup) 
     balloonGroup.isVisible = false
     balloon = display.newImageRect( balloonGroup, "images/balloon.png", unitX * 450, unitX * 320 )
     balloon.x = display.contentCenterX
