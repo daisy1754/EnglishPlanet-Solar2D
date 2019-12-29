@@ -77,10 +77,10 @@ function scene:create( event )
 
     local alien1
     local alienRadius
-    local function placeAlien()
+    local function initAlien(src)
         local width = unitX * 150
         local height = width * 167 / 177
-        local sheet = graphics.newImageSheet( "images/aliens/aliens01.png", {
+        local sheet = graphics.newImageSheet( src, {
             width = width,
             height = height,
             sheetContentWidth = width * 3,
@@ -118,6 +118,10 @@ function scene:create( event )
         alien1 = alien
 
         local function mayChangeMotion()
+            if  state ~= "initial" then
+                return
+            end
+
             if math.random() < 0.2 then
                 if alien.sequence == "walking" then
                     alien:setSequence("still")
@@ -135,12 +139,21 @@ function scene:create( event )
                 alien.xScale = 1
             end
         end
+        local function mayMove()
+            if alien.sequence == "walking" then
+                local speed = alien.xScale > 0 and math.random() or -math.random();
+                alien.rotation = (alien.rotation + speed) % 360
+                alien.x = planet.x + math.sin(math.rad(alien.rotation)) * alienRadius
+                alien.y = planet.y - math.cos(math.rad(alien.rotation)) * alienRadius
+            end
+        end
         timer.performWithDelay(2000, mayChangeMotion, -1)
+        timer.performWithDelay(100, mayMove, -1)
     end
-    placeAlien()
-    placeAlien()
-    placeAlien()
-    placeAlien()
+    initAlien("images/aliens/aliens01.png")
+    initAlien("images/aliens/aliens02.png")
+    initAlien("images/aliens/aliens01.png")
+    initAlien("images/aliens/aliens02.png")
 
     local balloonWidth = unitX * 510
     local balloonHeight = playerWidth * 926 / 648
@@ -171,7 +184,8 @@ function scene:create( event )
         balloonText.isVisible = not balloonText.isVisible
         stars.isVisible = not balloon.isVisible
         local zoom = 2
-        if balloon.isVisible then
+        if state == "initial" then
+            state = "quiz_start"
             balloon:play()
             transition.to( zoomableGroup, { 
                 time=500,
@@ -193,6 +207,7 @@ function scene:create( event )
             alien1:setSequence("still")
             alien1:pause()
         else
+            state = "initial"
             transition.to( zoomableGroup, { time=300, transition=easing.inOutQuad, xScale=1, yScale=1, x=0} )
 
             local radius = (planet.contentWidth + playerHeight) / 2
