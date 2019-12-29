@@ -4,9 +4,9 @@
 --
 -----------------------------------------------------------------------------------------
 
-
-local gameMusic = audio.loadStream( "music/main.mp3" )
-audio.play( gameMusic, { loops = -1 } )
+-- music
+-- local gameMusic = audio.loadStream( "music/main.mp3" )
+-- audio.play( gameMusic, { loops = -1 } )
 
 local unitX = display.contentWidth / 1000.0;
 local unitY = display.contentHeight / 1000.0;
