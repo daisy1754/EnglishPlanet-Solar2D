@@ -142,19 +142,35 @@ function scene:create( event )
     placeAlien()
     placeAlien()
 
-    local balloonGroup = display.newGroup() 
-    balloonGroup.isVisible = false
-    balloon = display.newImageRect( zoomableGroup, "images/balloon.png", unitX * 450, unitX * 320 )
+    local balloonWidth = unitX * 510
+    local balloonHeight = playerWidth * 926 / 648
+    local balloonSheet = graphics.newImageSheet( "images/balloon_sheet.png", {
+        width = balloonWidth,
+        height = balloonHeight,
+        sheetContentWidth = balloonWidth * 6,
+        sheetContentHeight = balloonHeight, 
+        numFrames = 6,
+    })
+    local balloon = display.newSprite(zoomableGroup, balloonSheet, {
+        name = "zoomin",
+        start = 1,
+        count = 6,
+        loopCount = 1,
+        time = 700
+    })
     balloon.x = display.contentCenterX
-    balloon.y = planet.y - (planet.contentHeight + unitX * 320) / 2 - player.contentHeight
-    local balloonText = display.newText( zoomableGroup, "ねえ apple ってどういういみだっけ?", planet.x, balloon.y, balloon.contentWidth - unitX * 30, balloon.contentHeight - unitY * 10, "fonts/PixelMplus12-Regular.ttf", 30 )
+    balloon.y = planet.y - (planet.contentHeight + balloonHeight) / 2 - player.contentHeight
+    balloon.isVisible = false
+    local balloonText = display.newText( zoomableGroup, "ねえ apple ってどういういみだっけ?", planet.x, balloon.y, balloon.contentWidth - unitX * 120, balloon.contentHeight - unitY * 50, "fonts/PixelMplus12-Regular.ttf", 20 )
     balloonText:setFillColor( 0, 0, 0 )
+    balloonText.isVisible = false
     local function toggleBalloon()
         balloon.isVisible = not balloon.isVisible
         balloonText.isVisible = not balloonText.isVisible
         stars.isVisible = not balloon.isVisible
         local zoom = 2
         if balloon.isVisible then
+            balloon:play()
             transition.to( zoomableGroup, { 
                 time=500,
                 transition=easing.inOutQuad, 
@@ -172,6 +188,7 @@ function scene:create( event )
             alien1.y = planet.y - math.cos(math.rad(10)) * alienRadius
             alien1.rotation = 10
             alien1.xScale = -1
+            alien1:setSequence("still")
             alien1:pause()
         else
             transition.to( zoomableGroup, { time=300, transition=easing.inOutQuad, xScale=1, yScale=1, x=0} )
