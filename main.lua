@@ -4,6 +4,10 @@
 --
 -----------------------------------------------------------------------------------------
 
+
+local gameMusic = audio.loadStream( "music/main.mp3" )
+audio.play( gameMusic, { loops = -1 } )
+
 local background = display.newImageRect( "images/bg_blue.png", display.contentWidth, display.contentHeight )
 background.x = display.contentCenterX
 background.y = display.contentCenterY
