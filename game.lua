@@ -11,6 +11,8 @@ function scene:create( event )
     local unitY = display.contentHeight / 1000.0;
     local planet
     local stars
+    -- "initial", "quiz_start", "quiz_answer", "quiz_correct", "quiz_wrong"
+    local state = "initial"
 
     local bgGroup = display.newGroup()
     local zoomableGroup = display.newGroup()
@@ -55,6 +57,7 @@ function scene:create( event )
 
     local playerWidth = unitX * 150
     local playerHeight = playerWidth * 250 / 181
+    local playerRadius = (planet.contentWidth + playerHeight) / 2
     local playerSheet = graphics.newImageSheet( "images/player_sheets.png", {
         width = playerWidth,
         height = playerHeight,
@@ -72,8 +75,10 @@ function scene:create( event )
     })
     player:play()
     player.x = planet.x
-    player.y = planet.y - planet.contentWidth / 2 - (playerHeight / 2)
+    player.y = planet.y - playerRadius
 
+    local alien
+    local alienRadius
     local function placeAlien()
         local width = unitX * 150
         local height = width * 167 / 177
@@ -84,7 +89,7 @@ function scene:create( event )
             sheetContentHeight = height, 
             numFrames = 3,
         })
-        local alien = display.newSprite(zoomableGroup, sheet, {
+        alien = display.newSprite(zoomableGroup, sheet, {
             name = "walk",
             start = 2,
             count = 2,
@@ -104,6 +109,7 @@ function scene:create( event )
         if alien.rotation > 180 then
             alien.xScale = -1
         end
+        alienRadius = radius
     end
     placeAlien()
     placeAlien()
@@ -123,7 +129,6 @@ function scene:create( event )
         stars.isVisible = not balloon.isVisible
         local zoom = 2
         if balloon.isVisible then
-            print(zoomableGroup.x)
             transition.to( zoomableGroup, { 
                 time=500,
                 transition=easing.inOutQuad, 
@@ -132,8 +137,23 @@ function scene:create( event )
                 -- ここのXの値よくわかってない
                 x= -zoomableGroup.contentWidth * 0.75 
             } )
+
+            player.x = planet.x + math.sin(math.rad(350)) * playerRadius
+            player.y = planet.y - math.cos(math.rad(350)) * playerRadius
+            player.rotation = 350
+
+            alien.x = planet.x + math.sin(math.rad(10)) * alienRadius
+            alien.y = planet.y - math.cos(math.rad(10)) * alienRadius
+            alien.rotation = 10
+            alien.xScale = -1
+            alien:pause()
         else
             transition.to( zoomableGroup, { time=300, transition=easing.inOutQuad, xScale=1, yScale=1, x=0} )
+
+            local radius = (planet.contentWidth + playerHeight) / 2
+            player.x = planet.x
+            player.y = planet.y - playerRadius
+            player.rotation = 0
         end
     end
     
