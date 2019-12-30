@@ -1,4 +1,5 @@
 local composer = require( "composer" )
+local widget = require( "widget" )
 local scene = composer.newScene()
 
 function scene:create( event ) 
@@ -11,8 +12,11 @@ function scene:create( event )
     local unitY = display.contentHeight / 1000.0;
     local planet
     local stars
-    -- "initial", "quiz_start", "quiz_answer", "quiz_correct", "quiz_wrong"
-    local state = "initial"
+
+    local state_init = 1
+    local state_quiz_start = 2
+    local state_quiz_accept_answer = 3
+    local game_state = state_init
 
     local bgGroup = display.newGroup()
     local zoomableGroup = display.newGroup()
@@ -30,7 +34,7 @@ function scene:create( event )
         else
             starWidth = starHeight * 1424 / 1751
         end
-        stars = display.newRect(bgGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+        stars = display.newRect(zoomableGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
         stars.fill = {type = "image", filename = "images/bg_stars.png" }
         local function animateBackground()
             transition.to( stars.fill, { time=20000, x=1, y=-0.3, delta=true, onComplete=animateBackground } )
@@ -38,39 +42,58 @@ function scene:create( event )
         animateBackground()
 
         local function placeIcon(src, index)
-            icon = display.newImageRect( bgGroup, src, unitX * 90, unitX * 90 )
-            icon.x = display.contentWidth - unitX * 120 * index - unitX * 80
+            icon = display.newImageRect( bgGroup, src, unitX * 140, unitX * 140 )
+            icon.x = display.contentWidth - unitX * 140 * index - unitX * 80
+            if index == 3 then
+                icon.x = icon.x - unitX * 15
+            end
             icon.y = unitY * 70
         end
-        placeIcon("images/icon_stars.png", 3)
+        placeIcon("images/icon_star.png", 3)
         placeIcon("images/icon_book.png", 2)
-        placeIcon("images/icon_screenshot.png", 1)
-        placeIcon("images/icon_settings.png", 0)
+        placeIcon("images/icon_share.png", 1)
+        placeIcon("images/icon_setting.png", 0)
 
-        planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 500, unitX * 500 )
+        planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 550, unitX * 550 )
         planet.x = display.contentCenterX
         planet.y = display.contentCenterY + unitY * 100
     end
     initBackground()
 
     local playerWidth = unitX * 150
-    local playerHeight = playerWidth * 250 / 181
-    local playerRadius = (planet.contentWidth + playerHeight) / 2
-    local playerSheet = graphics.newImageSheet( "images/player_sheets.png", {
+    local playerHeight = playerWidth * 242 / 168
+    local playerRadius = (planet.contentWidth + playerHeight) / 2 - unitX * 2
+    local playerSheet = graphics.newImageSheet( "images/character.png", {
         width = playerWidth,
         height = playerHeight,
-        sheetContentWidth = playerWidth * 2,
+        sheetContentWidth = playerWidth * 9,
         sheetContentHeight = playerHeight, 
-        numFrames = 2,
+        numFrames = 9,
     })
     local player = display.newSprite(zoomableGroup, playerSheet, {
-        name = "standby",
-        start = 1,
-        count = 2,
-
-        loopCount = 0,
-        time = 1000
+        {
+            name = "standby",
+            start = 1,
+            count = 2,
+            loopCount = 0,
+            time = 1000
+        },
+        {
+            name = "incorrect",
+            start = 3,
+            count = 2,
+            loopCount = 1,
+            time = 500
+        },
+        {
+            name = "correct",
+            start = 5,
+            count = 5,
+            loopCount = 1,
+            time = 600
+        },
     })
+
     player:play()
     player.x = planet.x
     player.y = planet.y - playerRadius
@@ -79,7 +102,7 @@ function scene:create( event )
     local alienRadius
     local function initAlien(src)
         local width = unitX * 150
-        local height = width * 167 / 177
+        local height = width * 226 / 177
         local sheet = graphics.newImageSheet( src, {
             width = width,
             height = height,
@@ -108,17 +131,16 @@ function scene:create( event )
         end
 
         alien:play()
-        radius = planet.contentWidth / 2 + (height / 2)
-        alien.x = planet.x + math.sin(math.rad(alien.rotation)) * radius
-        alien.y = planet.y - math.cos(math.rad(alien.rotation)) * radius
+        alienRadius = planet.contentWidth / 2 + (height / 2) - unitX * 5
+        alien.x = planet.x + math.sin(math.rad(alien.rotation)) * alienRadius
+        alien.y = planet.y - math.cos(math.rad(alien.rotation)) * alienRadius
         if alien.rotation > 180 then
             alien.xScale = -1
         end
-        alienRadius = radius
         alien1 = alien
 
         local function mayChangeMotion()
-            if  state ~= "initial" then
+            if  game_state ~= state_init then
                 return
             end
 
@@ -152,8 +174,11 @@ function scene:create( event )
     end
     initAlien("images/aliens/aliens01.png")
     initAlien("images/aliens/aliens02.png")
-    initAlien("images/aliens/aliens01.png")
-    initAlien("images/aliens/aliens02.png")
+    initAlien("images/aliens/aliens03.png")
+    initAlien("images/aliens/aliens04.png")
+    initAlien("images/aliens/aliens05.png")
+    initAlien("images/aliens/aliens06.png")
+    initAlien("images/aliens/aliens07.png")
 
     local balloonWidth = unitX * 510
     local balloonHeight = playerWidth * 926 / 648
@@ -174,26 +199,41 @@ function scene:create( event )
     balloon.x = display.contentCenterX
     balloon.y = planet.y - (planet.contentHeight + balloonHeight) / 2 - player.contentHeight
     balloon.isVisible = false
-    local balloonText = display.newText( zoomableGroup, "ねえ apple って どういう いみ だっけ?", 
-        planet.x, balloon.y, 
-        balloon.contentWidth - unitX * 120, balloon.contentHeight - unitY * 60, "fonts/PixelMplus12-Regular.ttf", 16 )
+    local balloonText = display.newText({
+        parent = zoomableGroup,
+        text = "ねぇ   apple   って\nどういう いみ だっけ?",     
+        x = planet.x,
+        y = balloon.y,
+        width = balloon.contentWidth - unitX * 120,
+        height = balloon.contentHeight - unitY * 60,
+        font = "fonts/PixelMplus12-Regular.ttf",   
+        fontSize = 16,
+        align = "center"
+    })
     balloonText:setFillColor( 0, 0, 0 )
     balloonText.isVisible = false
+
     local function toggleBalloon()
         balloon.isVisible = not balloon.isVisible
-        balloonText.isVisible = not balloonText.isVisible
-        stars.isVisible = not balloon.isVisible
+        balloonText.isVisible = false
+        transition.fadeOut(stars)
         local zoom = 2
-        if state == "initial" then
-            state = "quiz_start"
+        if game_state == state_init then
+            game_state = state_quiz_start
             balloon:play()
+            local function showBalloonText()
+                balloonText.isVisible = true
+            end
+            local function scheduleShowBalloonText()
+                timer.performWithDelay(100, showBalloonText, 1)
+            end
             transition.to( zoomableGroup, { 
                 time=500,
                 transition=easing.inOutQuad, 
                 xScale=zoom,
                 yScale=zoom,
-                -- ここのXの値よくわかってない
-                x= -zoomableGroup.contentWidth * 0.75 
+                x= -display.contentWidth * 0.5,
+                onComplete=scheduleShowBalloonText
             } )
 
             player.x = planet.x + math.sin(math.rad(350)) * playerRadius
@@ -206,8 +246,58 @@ function scene:create( event )
             alien1.xScale = -1
             alien1:setSequence("still")
             alien1:pause()
+        elseif game_state == state_quiz_start then
+            game_state = state_quiz_accept_answer
+            local buttons = {}
+            local function placeButton(index, label, isCorrect)
+                local function onPress()
+                    local function onAnswer()
+                        transition.fadeOut( buttons[index], { time=1000 })
+
+                        local function standby()
+                            player:setSequence("standby")
+                            player:play()
+                        end
+
+                        if isCorrect then
+                            player:setSequence("correct")
+                            player:play()
+                            timer.performWithDelay(700, standby, 1)
+                        else 
+                            player:setSequence("incorrect")
+                            player:play()
+                            timer.performWithDelay(1500, standby, 1)
+                        end
+                    end
+                    for i=0,2 do
+                        if i ~= index then
+                            transition.fadeOut( buttons[i], { time=400, onComplete=onAnswer } )
+                        end
+                    end
+                end
+                local button = widget.newButton(
+                    {
+                        label = label,
+                        shape = "roundedRect",
+                        width = display.contentWidth * 0.8,
+                        height = display.contentHeight * 0.1,
+                        cornerRadius = unitX * 40,
+                        labelColor = { default={ 0, 0, 0 }, over={ 0,0,0 } },
+                        font = "fonts/PixelMplus12-Regular.ttf",
+                        fontSize = unitX * 80,
+                        fillColor = { default={1,1,1,1}, over={1,1,1,1} },
+                        onPress = onPress
+                    }
+                )
+                button.x = display.contentCenterX
+                button.y = display.contentHeight * 0.14 * index + display.contentHeight * 0.2
+                buttons[index] = button
+            end
+            placeButton(0, "みかん", false)
+            placeButton(1, "りんご", true)
+            placeButton(2, "いちご", false)
         else
-            state = "initial"
+            game_state = state_init
             transition.to( zoomableGroup, { time=300, transition=easing.inOutQuad, xScale=1, yScale=1, x=0} )
 
             local radius = (planet.contentWidth + playerHeight) / 2
@@ -218,6 +308,8 @@ function scene:create( event )
     end
     
     planet:addEventListener( "tap", toggleBalloon )
+    balloon:addEventListener( "tap", toggleBalloon )
+    balloonText:addEventListener( "tap", toggleBalloon )
 end
 
 function scene:show( event )
