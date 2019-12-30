@@ -41,6 +41,34 @@ function scene:create( event )
         end
         animateBackground()
 
+        local function shareScreenshot()
+            local stage = display.currentStage
+
+            display.save( stage, "image.png", system.DocumentsDirectory )
+
+            timer.performWithDelay(100, function()
+                local listener = {}
+                function listener:popup( event )
+                    print( "name: " .. event.name )
+                    print( "type: " .. event.type )
+                    print( "action: " .. tostring( event.action ) )
+                    print( "limitReached: " .. tostring( event.limitReached ) )
+                end
+                native.showPopup( "social",
+                {
+                    listener = listener,
+                    message= "hello",
+                    url =
+                    {
+                        "http://www.coronalabs.com",
+                    },
+                    image =
+                    {
+                        { filename="image.png", baseDir=system.DocumentsDirectory },
+                    },
+                })
+            end)
+        end
         local function placeIcon(src, index)
             icon = display.newImageRect( bgGroup, src, unitX * 140, unitX * 140 )
             icon.x = display.contentWidth - unitX * 140 * index - unitX * 80
@@ -48,6 +76,8 @@ function scene:create( event )
                 icon.x = icon.x - unitX * 15
             end
             icon.y = unitY * 70
+
+            icon:addEventListener( "tap", shareScreenshot )
         end
         placeIcon("images/icon_star.png", 3)
         placeIcon("images/icon_book.png", 2)
