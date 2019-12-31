@@ -2,11 +2,16 @@ local composer = require( "composer" )
 local widget = require( "widget" )
 local scene = composer.newScene()
 
+local soundTable = { 
+    correct = audio.loadSound( "soundeffects/correct_answer.wav" ),
+    incorrect = audio.loadSound( "soundeffects/uhoh.wav" ),
+}
+
 function scene:create( event ) 
     local sceneGroup = self.view
     -- music
-    -- local gameMusic = audio.loadStream( "music/main.mp3" )
-    -- audio.play( gameMusic, { loops = -1 } )
+    local gameMusic = audio.loadStream( "music/main.mp3" )
+    audio.play( gameMusic, { loops = -1 } )
 
     local unitX = display.contentWidth / 1000.0;
     local unitY = display.contentHeight / 1000.0;
@@ -19,7 +24,9 @@ function scene:create( event )
     local game_state = state_init
 
     local bgGroup = display.newGroup()
-    local zoomableGroup = display.newGroup()
+	local zoomableGroup = display.newGroup()
+	sceneGroup:insert(bgGroup)
+	sceneGroup:insert(zoomableGroup)
     local function initBackground() 
         local background = display.newImageRect( bgGroup, "images/bg_blue.png", display.contentWidth, display.contentHeight )
         background.x = display.contentCenterX
@@ -69,7 +76,7 @@ function scene:create( event )
                 })
             end)
         end
-        local function placeIcon(src, index)
+        local function placeIcon(src, index, onTap)
             icon = display.newImageRect( bgGroup, src, unitX * 140, unitX * 140 )
             icon.x = display.contentWidth - unitX * 140 * index - unitX * 80
             if index == 3 then
@@ -77,12 +84,15 @@ function scene:create( event )
             end
             icon.y = unitY * 70
 
-            icon:addEventListener( "tap", shareScreenshot )
-        end
-        placeIcon("images/icon_star.png", 3)
-        placeIcon("images/icon_book.png", 2)
-        placeIcon("images/icon_share.png", 1)
-        placeIcon("images/icon_setting.png", 0)
+            icon:addEventListener( "tap", onTap )
+		end
+		local function openAlbum() 
+			composer.gotoScene( "album", { time=800, effect="crossFade" } )
+		end
+        placeIcon("images/icon_star.png", 3, openAlbum)
+        placeIcon("images/icon_book.png", 2, openAlbum)
+        placeIcon("images/icon_share.png", 1, shareScreenshot)
+        placeIcon("images/icon_setting.png", 0, openAlbum)
 
         planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 550, unitX * 550 )
         planet.x = display.contentCenterX
@@ -289,11 +299,13 @@ function scene:create( event )
                             player:play()
                         end
 
-                        if isCorrect then
+						if isCorrect then
+							audio.play( soundTable["correct"] )
                             player:setSequence("correct")
                             player:play()
                             timer.performWithDelay(700, standby, 1)
                         else 
+							audio.play( soundTable["incorrect"] )
                             player:setSequence("incorrect")
                             player:play()
                             timer.performWithDelay(1500, standby, 1)
