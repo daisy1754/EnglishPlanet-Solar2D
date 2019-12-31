@@ -1,10 +1,20 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
+local quiz = require( "quiz" )
 local scene = composer.newScene()
 
 local soundTable = { 
     correct = audio.loadSound( "soundeffects/correct_answer.wav" ),
     incorrect = audio.loadSound( "soundeffects/uhoh.wav" ),
+}
+
+local thankYou = {
+	"どうもありがとう",
+	"どうもありがと〜ん",
+	"ありがとね",
+	"ありがとね〜ん",
+	"ありがとう",
+	"ありがと!"
 }
 
 function scene:create( event ) 
@@ -16,9 +26,11 @@ function scene:create( event )
     local unitX = display.contentWidth / 1000.0
 	local unitY = display.contentHeight / 1000.0
 	
+	local category = 'fruit'
     local planet
 	local stars
 	local placeAlien
+	local words
 
     local state_init = 1
     local state_quiz_start = 2
@@ -173,15 +185,15 @@ function scene:create( event )
             }
 		})
 		
-		placeAlien = function(alien)
+		placeAlien = function(a)
 			-- TODO: かぶらないようにする
-			while alien.rotation < 20 or alien.rotation > 340 do
-				alien.rotation = math.random(360)
+			while a.rotation < 20 or a.rotation > 340 do
+				a.rotation = math.random(360)
 			end
 			
 			alienRadius = planet.contentWidth / 2 + (height / 2) - unitX * 5
-			alien.x = planet.x + math.sin(math.rad(alien.rotation)) * alienRadius
-			alien.y = planet.y - math.cos(math.rad(alien.rotation)) * alienRadius
+			a.x = planet.x + math.sin(math.rad(a.rotation)) * alienRadius
+			a.y = planet.y - math.cos(math.rad(alien.rotation)) * alienRadius
 		end
 
 		placeAlien(alien)
@@ -297,7 +309,8 @@ function scene:create( event )
         if game_state == state_init then
             game_state = state_quiz_start
 			balloon:play()
-			balloonText.text = 'ねぇ   apple   って\nどういう いみ だっけ?'
+			words = quiz.startQuiz(category)
+			balloonText.text = 'ねぇ   '..words.answer.word..'   って\nどういう いみ だっけ?'
 			zoom(2, 500, scheduleShowBalloon)
 
             player.x = planet.x + math.sin(math.rad(350)) * playerRadius
@@ -335,7 +348,7 @@ function scene:create( event )
 							game_state = state_quiz_answer_correct
 							playEffect("correct", 700)
 							local function showCorrectMsg()
-								balloonText.text = "そうだ!\nりんごだった!"
+								balloonText.text = "そうだ!\n" .. words.answer.translation .. "だった!"
 								showBalloon()
 							end
 							timer.performWithDelay(1000, showCorrectMsg, 1)
@@ -372,14 +385,23 @@ function scene:create( event )
                 button.x = display.contentCenterX
                 button.y = display.contentHeight * 0.14 * index + display.contentHeight * 0.2
                 buttons[index] = button
-            end
-            placeButton(0, "みかん", false)
-            placeButton(1, "りんご", true)
-            placeButton(2, "いちご", false)
+			end
+			arr = {}
+			arr[1] = words.answer.translation
+			arr[2] = words.other1.translation
+			arr[3] = words.other2.translation
+			shuffled={}
+			for i, v in ipairs(arr) do
+				local pos = math.random(1, #shuffled+1)
+				table.insert(shuffled, pos, v)
+			end
+            placeButton(0, shuffled[1], shuffled[1] == words.answer.translation)
+            placeButton(1, shuffled[2], shuffled[2] == words.answer.translation)
+            placeButton(2, shuffled[3], shuffled[3] == words.answer.translation)
 		elseif game_state == state_quiz_accept_answer then
 			-- wait for answer, ignore tap
 		elseif game_state == state_quiz_answer_correct then
-			balloonText.text = "どうもありがとう!"
+			balloonText.text = thankYou[math.random(#thankYou)]
 			showBalloon()
 			local function endQuiz()
 				hideBalloon()
@@ -391,8 +413,9 @@ function scene:create( event )
 			end
 			timer.performWithDelay(2000, endQuiz, 1)
 		elseif game_state == state_quiz_answer_incorrect then
-            game_state = state_quiz_start
-			balloonText.text = 'ねぇ   apple   って\nどういう いみ だっけ?'
+			game_state = state_quiz_start
+			words = quiz.startQuiz(category)
+			balloonText.text = 'ねぇ   '..words.answer.word..'   って\nどういう いみ だっけ?'
 			zoom(2, 300)
 			showBalloon()
         else
