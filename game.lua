@@ -1,5 +1,6 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
+local social = require( "social" )
 local quiz = require( "quiz" )
 local scene = composer.newScene()
 
@@ -64,33 +65,8 @@ function scene:create( event )
         end
         animateBackground()
 
-        local function shareScreenshot()
-            local stage = display.currentStage
-
-            display.save( stage, "image.png", system.DocumentsDirectory )
-
-            timer.performWithDelay(100, function()
-                local listener = {}
-                function listener:popup( event )
-                    print( "name: " .. event.name )
-                    print( "type: " .. event.type )
-                    print( "action: " .. tostring( event.action ) )
-                    print( "limitReached: " .. tostring( event.limitReached ) )
-                end
-                native.showPopup( "social",
-                {
-                    listener = listener,
-                    message= "hello",
-                    url =
-                    {
-                        "http://www.coronalabs.com",
-                    },
-                    image =
-                    {
-                        { filename="image.png", baseDir=system.DocumentsDirectory },
-                    },
-                })
-            end)
+		local function shareScreenshot()
+	        social.shareScreenshot(display.currentStage)
         end
         local function placeIcon(src, index, onTap)
             icon = display.newImageRect( bgGroup, src, unitX * 140, unitX * 140 )
