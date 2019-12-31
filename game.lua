@@ -13,14 +13,18 @@ function scene:create( event )
     local gameMusic = audio.loadStream( "music/main.mp3" )
     audio.play( gameMusic, { loops = -1 } )
 
-    local unitX = display.contentWidth / 1000.0;
-    local unitY = display.contentHeight / 1000.0;
+    local unitX = display.contentWidth / 1000.0
+	local unitY = display.contentHeight / 1000.0
+	
     local planet
-    local stars
+	local stars
+	local placeAlien
 
     local state_init = 1
     local state_quiz_start = 2
     local state_quiz_accept_answer = 3
+    local state_quiz_answer_correct = 4
+    local state_quiz_answer_incorrect = 5
     local game_state = state_init
 
     local bgGroup = display.newGroup()
@@ -134,9 +138,12 @@ function scene:create( event )
         },
     })
 
-    player:play()
-    player.x = planet.x
-    player.y = planet.y - playerRadius
+	local function resetPlayer()
+		player.x = planet.x
+		player.y = planet.y - playerRadius
+		player.rotation = 0
+	end
+    resetPlayer()
 
     local alien1
     local alienRadius
@@ -164,16 +171,21 @@ function scene:create( event )
                 start=1,
                 count=1
             }
-        })
-        -- TODO: かぶらないようにする
-        while alien.rotation < 20 or alien.rotation > 340 do
-            alien.rotation = math.random(360)
-        end
+		})
+		
+		placeAlien = function(alien)
+			-- TODO: かぶらないようにする
+			while alien.rotation < 20 or alien.rotation > 340 do
+				alien.rotation = math.random(360)
+			end
+			
+			alienRadius = planet.contentWidth / 2 + (height / 2) - unitX * 5
+			alien.x = planet.x + math.sin(math.rad(alien.rotation)) * alienRadius
+			alien.y = planet.y - math.cos(math.rad(alien.rotation)) * alienRadius
+		end
 
+		placeAlien(alien)
         alien:play()
-        alienRadius = planet.contentWidth / 2 + (height / 2) - unitX * 5
-        alien.x = planet.x + math.sin(math.rad(alien.rotation)) * alienRadius
-        alien.y = planet.y - math.cos(math.rad(alien.rotation)) * alienRadius
         if alien.rotation > 180 then
             alien.xScale = -1
         end
@@ -241,7 +253,7 @@ function scene:create( event )
     balloon.isVisible = false
     local balloonText = display.newText({
         parent = zoomableGroup,
-        text = "ねぇ   apple   って\nどういう いみ だっけ?",     
+        text = "",     
         x = planet.x,
         y = balloon.y,
         width = balloon.contentWidth - unitX * 120,
@@ -251,30 +263,42 @@ function scene:create( event )
         align = "center"
     })
     balloonText:setFillColor( 0, 0, 0 )
-    balloonText.isVisible = false
+	balloonText.isVisible = false
+	
+	local function showBalloon()
+		balloon.isVisible = true
+		balloonText.isVisible = true
+	end
+	
+	function scheduleShowBalloon()
+		timer.performWithDelay(100, showBalloon, 1)
+	end
+
+	local function hideBalloon()
+		balloon.isVisible = false
+		balloonText.isVisible = false
+	end
+
+	local function zoom(ratio, time, onComplete)
+		transition.to( zoomableGroup, { 
+			time=time,
+			transition=easing.inOutQuad, 
+			xScale=ratio,
+			yScale=ratio,
+			x= -(display.contentWidth * (ratio - 1)) / 2,
+			onComplete=onComplete
+		} )
+	end
 
     local function toggleBalloon()
-        balloon.isVisible = not balloon.isVisible
+        balloon.isVisible = false
         balloonText.isVisible = false
         transition.fadeOut(stars)
-        local zoom = 2
         if game_state == state_init then
             game_state = state_quiz_start
-            balloon:play()
-            local function showBalloonText()
-                balloonText.isVisible = true
-            end
-            local function scheduleShowBalloonText()
-                timer.performWithDelay(100, showBalloonText, 1)
-            end
-            transition.to( zoomableGroup, { 
-                time=500,
-                transition=easing.inOutQuad, 
-                xScale=zoom,
-                yScale=zoom,
-                x= -display.contentWidth * 0.5,
-                onComplete=scheduleShowBalloonText
-            } )
+			balloon:play()
+			balloonText.text = 'ねぇ   apple   って\nどういう いみ だっけ?'
+			zoom(2, 500, scheduleShowBalloon)
 
             player.x = planet.x + math.sin(math.rad(350)) * playerRadius
             player.y = planet.y - math.cos(math.rad(350)) * playerRadius
@@ -297,18 +321,32 @@ function scene:create( event )
                         local function standby()
                             player:setSequence("standby")
                             player:play()
-                        end
+						end
+						
+						local function playEffect(name, delayToStandby)
+							audio.play( soundTable[name] )
+                            player:setSequence(name)
+                            player:play()
+							timer.performWithDelay(delayToStandby, standby, 1)
+						end
 
+						zoom(2.2, 500)
 						if isCorrect then
-							audio.play( soundTable["correct"] )
-                            player:setSequence("correct")
-                            player:play()
-                            timer.performWithDelay(700, standby, 1)
+							game_state = state_quiz_answer_correct
+							playEffect("correct", 700)
+							local function showCorrectMsg()
+								balloonText.text = "そうだ!\nりんごだった!"
+								showBalloon()
+							end
+							timer.performWithDelay(1000, showCorrectMsg, 1)
                         else 
-							audio.play( soundTable["incorrect"] )
-                            player:setSequence("incorrect")
-                            player:play()
-                            timer.performWithDelay(1500, standby, 1)
+							game_state = state_quiz_answer_incorrect
+							playEffect("incorrect", 1500)
+							local function showIncorrectMsg()
+								balloonText.text = "うーん\nちがうような"
+								showBalloon()
+							end
+							timer.performWithDelay(1000, showIncorrectMsg, 1)
                         end
                     end
                     for i=0,2 do
@@ -338,14 +376,28 @@ function scene:create( event )
             placeButton(0, "みかん", false)
             placeButton(1, "りんご", true)
             placeButton(2, "いちご", false)
-        else
-            game_state = state_init
-            transition.to( zoomableGroup, { time=300, transition=easing.inOutQuad, xScale=1, yScale=1, x=0} )
+		elseif game_state == state_quiz_accept_answer then
+			-- wait for answer, ignore tap
+		elseif game_state == state_quiz_answer_correct then
+			balloonText.text = "どうもありがとう!"
+			showBalloon()
+			local function endQuiz()
+				hideBalloon()
+				game_state = state_init
+				zoom(1, 500)
 
-            local radius = (planet.contentWidth + playerHeight) / 2
-            player.x = planet.x
-            player.y = planet.y - playerRadius
-            player.rotation = 0
+				resetPlayer()
+				placeAlien(alien1)
+			end
+			timer.performWithDelay(2000, endQuiz, 1)
+		elseif game_state == state_quiz_answer_incorrect then
+            game_state = state_quiz_start
+			balloonText.text = 'ねぇ   apple   って\nどういう いみ だっけ?'
+			zoom(2, 300)
+			showBalloon()
+        else
+			-- should never happen
+			print('invalid state')
         end
     end
     
