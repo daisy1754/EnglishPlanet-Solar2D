@@ -1,20 +1,131 @@
 local composer = require( "composer" )
 local scene = composer.newScene()
 
+local centerX = display.contentCenterX
+local centerY = display.contentCenterY
+
+local unitX = display.contentWidth / 1000.0
+local unitY = display.contentHeight / 1000.0
+
+local starNames = {
+    "umi",
+    "tenki",
+    "kazoku",
+    "koudou",
+    "riku",
+    "norimono",
+    "mono",
+    "jikan",
+    "tabemono"
+}
+local angles = {
+    0,
+    65,
+    95,
+    135,
+    165,
+    -165,
+    -135,
+    -95,
+    -65
+}
+
 function scene:create( event ) 
 	local sceneGroup = self.view
 
-	-- Set up display groups
-	backGroup = display.newGroup()  -- Display group for the background image
-	sceneGroup:insert( backGroup )  -- Insert into the scene's view group
+	bgGroup = display.newGroup()
+	sceneGroup:insert( bgGroup )
 
-	mainGroup = display.newGroup()  -- Display group for the ship, asteroids, lasers, etc.
-	sceneGroup:insert( mainGroup )  -- Insert into the scene's view group
+	mainGroup = display.newGroup()
+	sceneGroup:insert( mainGroup )
 
 	uiGroup = display.newGroup()    -- Display group for UI objects like the score
 	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
-	
-	livesText = display.newText( uiGroup, "select star", 200, 80, native.systemFont, 36 )
+
+	local function initBackground()
+        local background = display.newImageRect( bgGroup, "images/bg_blue.png", display.contentWidth, display.contentHeight )
+        background.x = centerX
+        background.y = centerY
+
+        starWidth = display.contentWidth
+        starHeight = display.contentHeight
+        if starWidth / starHeight > 1424 / 1751 then
+            starHeight = starWidth * 1751 / 1424
+        else
+            starWidth = starHeight * 1424 / 1751
+        end
+        stars = display.newImageRect(bgGroup, "images/bg_stars.png", starWidth, starHeight)
+        stars.x = centerX
+        stars.y = centerY
+    end
+
+    local function initStars()
+        local stars = {}
+        for i, starName in ipairs(starNames) do
+            local star = display.newImageRect(mainGroup, "images/stars/" .. starName .. ".png", unitX * 300, unitX * 300)
+            local angle = angles[i] + 90
+            star.x = display.contentCenterX + unitX * 400 * math.cos(math.rad(angle))
+            star.y = display.contentCenterY - unitY * 100 + 0.7 * unitX * 400 * math.sin(math.rad(angle))
+            local zoom 
+            if i == 1 then
+                zoom = 1.6
+            elseif math.sin(math.rad(angle)) < 0 then    
+                zoom = 1 + math.sin(math.rad(angle)) * 5 / 10
+            else
+                zoom = 1 + math.sin(math.rad(angle)) * 2 / 10
+            end
+            star:scale(zoom, zoom)
+            stars[#stars + 1] = star
+            print(string.format("%s %d %f", starName, angle, math.sin(math.rad(angle))))
+        end
+        for i=1,4 do
+            bgGroup:insert(stars[5-i])
+        end
+
+        local starNameFrame = display.newRect( mainGroup, centerX, 
+            stars[1].y + stars[1].contentHeight / 2 + unitX * 120,  unitX * 600, unitX * 120 )
+        starNameFrame:setFillColor( 1, 1, 1, 0.8 )
+		
+		local titleText = display.newText({
+			parent = mainGroup,
+			text = "たべもの プラネット",     
+			x = starNameFrame.x,
+			y = starNameFrame.y,
+			width = starNameFrame.contentWidth,
+			font = "fonts/PixelMplus12-Regular.ttf",   
+			fontSize = 24,
+			align = "center"
+		})
+		titleText:setFillColor( 0 )
+    end
+
+    local function initPlayer()
+        local playerWidth = unitX * 300
+        local playerHeight = playerWidth * 504 / 382
+        local playerSheet = graphics.newImageSheet( "images/moving.png", {
+            width = playerWidth,
+            height = playerHeight,
+            sheetContentWidth = playerWidth * 8,
+            sheetContentHeight = playerHeight, 
+            numFrames = 8,
+        })
+        local player = display.newSprite(mainGroup, playerSheet, {
+            {
+                name = "moving",
+                start = 1,
+                count = 8,
+                loopCount = 0,
+                time = 2000
+            },
+        })
+        player.x = unitX * 50 + playerWidth / 2
+        player.y = display.contentHeight - unitY * 50 - playerHeight / 2
+        player:play()
+    end
+
+    initBackground()
+    initStars()
+    initPlayer()
 end
 
 function scene:show( event )
