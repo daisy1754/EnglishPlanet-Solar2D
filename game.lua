@@ -4,6 +4,12 @@ local social = require( "social" )
 local quiz = require( "quiz" )
 local scene = composer.newScene()
 
+local centerX = display.contentCenterX
+local centerY = display.contentCenterY
+
+local unitX = display.contentWidth / 1000.0
+local unitY = display.contentHeight / 1000.0
+
 local soundTable = { 
     correct = audio.loadSound( "soundeffects/correct_answer.wav" ),
     incorrect = audio.loadSound( "soundeffects/uhoh.wav" ),
@@ -23,15 +29,14 @@ function scene:create( event )
     -- music
     local gameMusic = audio.loadStream( "music/main.mp3" )
     audio.play( gameMusic, { loops = -1 } )
-
-    local unitX = display.contentWidth / 1000.0
-	local unitY = display.contentHeight / 1000.0
 	
 	local category = 'fruit'
     local planet
 	local stars
 	local placeAlien
 	local words
+	local aliens = {}
+	local selectedAlien
 
     local state_init = 1
     local state_quiz_start = 2
@@ -46,19 +51,22 @@ function scene:create( event )
 	sceneGroup:insert(zoomableGroup)
     local function initBackground() 
         local background = display.newImageRect( bgGroup, "images/bg_blue.png", display.contentWidth, display.contentHeight )
-        background.x = display.contentCenterX
-        background.y = display.contentCenterY
+        background.x = centerX
+        background.y = centerY
 
         display.setDefault("textureWrapX", "repeat")
         display.setDefault("textureWrapY", "repeat")
         starWidth = display.contentWidth
         starHeight = display.contentHeight
-        if starWidth / starHeight < 1424 / 1751 then
+        if starWidth / starHeight > 1424 / 1751 then
             starHeight = starWidth * 1751 / 1424
         else
             starWidth = starHeight * 1424 / 1751
         end
-        stars = display.newRect(zoomableGroup, display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
+        stars = display.newRect(
+			bgGroup, 
+			centerX, centerY, 
+			starWidth, starHeight)
         stars.fill = {type = "image", filename = "images/bg_stars.png" }
         local function animateBackground()
             transition.to( stars.fill, { time=20000, x=1, y=-0.3, delta=true, onComplete=animateBackground } )
@@ -81,14 +89,17 @@ function scene:create( event )
 		local function openAlbum() 
 			composer.gotoScene( "album", { time=800, effect="crossFade" } )
 		end
-        placeIcon("images/icon_star.png", 3, openAlbum)
+		local function openSelectStars() 
+			composer.gotoScene( "select_stars", { time=800, effect="crossFade" } )
+		end
+        placeIcon("images/icon_star.png", 3, openSelectStars)
         placeIcon("images/icon_book.png", 2, openAlbum)
         placeIcon("images/icon_share.png", 1, shareScreenshot)
         placeIcon("images/icon_setting.png", 0, openAlbum)
 
         planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 550, unitX * 550 )
-        planet.x = display.contentCenterX
-        planet.y = display.contentCenterY + unitY * 100
+        planet.x = centerX
+        planet.y = centerY + unitY * 100
     end
     initBackground()
 
@@ -133,7 +144,6 @@ function scene:create( event )
 	end
     resetPlayer()
 
-    local alien1
     local alienRadius
     local function initAlien(src)
         local width = unitX * 150
@@ -177,7 +187,7 @@ function scene:create( event )
         if alien.rotation > 180 then
             alien.xScale = -1
         end
-        alien1 = alien
+        aliens[#aliens + 1] = alien
 
         local function mayChangeMotion()
             if  game_state ~= state_init then
@@ -211,14 +221,10 @@ function scene:create( event )
         end
         timer.performWithDelay(2000, mayChangeMotion, -1)
         timer.performWithDelay(100, mayMove, -1)
-    end
-    initAlien("images/aliens/aliens01.png")
-    initAlien("images/aliens/aliens02.png")
-    initAlien("images/aliens/aliens03.png")
-    initAlien("images/aliens/aliens04.png")
-    initAlien("images/aliens/aliens05.png")
-    initAlien("images/aliens/aliens06.png")
-    initAlien("images/aliens/aliens07.png")
+	end
+	for i=1, 7 do
+		initAlien("images/aliens/aliens0" .. i .. ".png")
+	end
 
     local balloonWidth = unitX * 510
     local balloonHeight = playerWidth * 926 / 648
@@ -236,7 +242,7 @@ function scene:create( event )
         loopCount = 1,
         time = 700
     })
-    balloon.x = display.contentCenterX
+    balloon.x = centerX
     balloon.y = planet.y - (planet.contentHeight + balloonHeight) / 2 - player.contentHeight
     balloon.isVisible = false
     local balloonText = display.newText({
@@ -293,12 +299,13 @@ function scene:create( event )
             player.y = planet.y - math.cos(math.rad(350)) * playerRadius
             player.rotation = 350
 
-            alien1.x = planet.x + math.sin(math.rad(10)) * alienRadius
-            alien1.y = planet.y - math.cos(math.rad(10)) * alienRadius
-            alien1.rotation = 10
-            alien1.xScale = -1
-            alien1:setSequence("still")
-            alien1:pause()
+			selectedAlien = aliens[math.random(#aliens)]
+            selectedAlien.x = planet.x + math.sin(math.rad(10)) * alienRadius
+            selectedAlien.y = planet.y - math.cos(math.rad(10)) * alienRadius
+            selectedAlien.rotation = 10
+            selectedAlien.xScale = 1
+            selectedAlien:setSequence("still")
+            selectedAlien:pause()
         elseif game_state == state_quiz_start then
             game_state = state_quiz_accept_answer
             local buttons = {}
@@ -338,7 +345,7 @@ function scene:create( event )
 							timer.performWithDelay(1000, showIncorrectMsg, 1)
                         end
                     end
-                    for i=0,2 do
+                    for i=1,3 do
                         if i ~= index then
                             transition.fadeOut( buttons[i], { time=400, onComplete=onAnswer } )
                         end
@@ -358,8 +365,8 @@ function scene:create( event )
                         onPress = onPress
                     }
                 )
-                button.x = display.contentCenterX
-                button.y = display.contentHeight * 0.14 * index + display.contentHeight * 0.2
+                button.x = centerX
+                button.y = display.contentHeight * 0.14 * (index - 1) + display.contentHeight * 0.2
                 buttons[index] = button
 			end
 			arr = {}
@@ -371,9 +378,9 @@ function scene:create( event )
 				local pos = math.random(1, #shuffled+1)
 				table.insert(shuffled, pos, v)
 			end
-            placeButton(0, shuffled[1], shuffled[1] == words.answer.translation)
-            placeButton(1, shuffled[2], shuffled[2] == words.answer.translation)
-            placeButton(2, shuffled[3], shuffled[3] == words.answer.translation)
+			for i=1, 3 do
+				placeButton(i, shuffled[i], shuffled[i] == words.answer.translation)
+			end
 		elseif game_state == state_quiz_accept_answer then
 			-- wait for answer, ignore tap
 		elseif game_state == state_quiz_answer_correct then
@@ -385,7 +392,7 @@ function scene:create( event )
 				zoom(1, 500)
 
 				resetPlayer()
-				placeAlien(alien1)
+				placeAlien(selectedAlien)
 			end
 			timer.performWithDelay(2000, endQuiz, 1)
 		elseif game_state == state_quiz_answer_incorrect then
