@@ -1,4 +1,5 @@
 local composer = require( "composer" )
+local starInfo = require( "stars" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -7,17 +8,6 @@ local centerY = display.contentCenterY
 local unitX = display.contentWidth / 1000.0
 local unitY = display.contentHeight / 1000.0
 
-local starInfo = {
-    { name = "うみの いきもの", image = "umi"},
-    { name = "てんき", image = "tenki"},
-    { name = "かぞく", image = "kazoku"},
-    { name = "こうどう", image = "koudou"},
-    { name = "りくの いきもの", image = "riku"},
-    { name = "のりもの", image = "norimono"},
-    { name = "もの", image = "mono"},
-    { name = "じかん", image = "jikan"},
-    { name = "たべもの", image = "tabemono"},
-}
 local angles = {
     0,
     65,
@@ -36,8 +26,6 @@ local currentOffset = 1
 
 local function touchHandler(event)
     local swipeLength = math.abs(event.x - event.xStart) 
-    print(event.phase, swipeLength)
-
     local t = event.target
     local phase = event.phase
 
@@ -101,6 +89,10 @@ function scene:create( event )
         end
     end
 
+    local function gotoGame()
+		composer.gotoScene( "game", { time=200, effect="crossFade" } )
+    end
+
     local function initStars()
         stars = {}
         for i, info in ipairs(starInfo) do
@@ -127,6 +119,7 @@ function scene:create( event )
         end
         adjustZoom()
         adjustZIndex()
+        stars[1]:addEventListener( "tap", gotoGame )
 
         local starNameFrame = display.newRoundedRect( mainGroup, centerX, 
             stars[1].y + stars[1].contentHeight / 2 + unitX * 140,  unitX * 600, unitX * 120, unitX * 30 )
@@ -146,6 +139,7 @@ function scene:create( event )
         
         swipeStar = function(offset)
             currentOffset = (currentOffset - offset - 1) % #angles + 1
+            system.setPreferences( "app", { selectedStarIndex = currentOffset } )
             local transitionDuration = 200
             for i, star in ipairs(stars) do
                 local nextAngle = angles[(i + offset - 1) % #angles + 1] + 90
@@ -161,11 +155,13 @@ function scene:create( event )
                 } )
             end
             local function onDone()
+                stars[1]:removeEventListener( "tap", gotoGame )
                 local tmp = {}
                 for i, star in ipairs(stars) do
                     tmp[(i + offset - 1) % #stars + 1] = star
                 end
                 stars = tmp
+                stars[1]:addEventListener( "tap", gotoGame )
                 adjustZIndex()
                 titleText.text = starInfo[currentOffset].name .. " プラネット"
             end

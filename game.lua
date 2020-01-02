@@ -2,6 +2,7 @@ local composer = require( "composer" )
 local widget = require( "widget" )
 local social = require( "social" )
 local quiz = require( "quiz" )
+local starInfo = require( "stars" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -24,6 +25,16 @@ local thankYou = {
 	"ありがと!"
 }
 
+local zoomableGroup
+local planet
+
+function initPlanet()
+	local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
+	planet = display.newImageRect( zoomableGroup, "images/stars/" .. starInfo[starIndex].image .. ".png", unitX * 550, unitX * 550 )
+	planet.x = centerX
+	planet.y = centerY + unitY * 100
+end
+
 function scene:create( event ) 
     local sceneGroup = self.view
     -- music
@@ -31,7 +42,6 @@ function scene:create( event )
     audio.play( gameMusic, { loops = -1 } )
 	
 	local category = 'fruit'
-    local planet
 	local stars
 	local placeAlien
 	local words
@@ -46,7 +56,7 @@ function scene:create( event )
     local game_state = state_init
 
     local bgGroup = display.newGroup()
-	local zoomableGroup = display.newGroup()
+	zoomableGroup = display.newGroup()
 	sceneGroup:insert(bgGroup)
 	sceneGroup:insert(zoomableGroup)
     local function initBackground() 
@@ -100,9 +110,7 @@ function scene:create( event )
         placeIcon("images/icon_share.png", 1, shareScreenshot)
         placeIcon("images/icon_setting.png", 0, openSettings)
 
-        planet = display.newImageRect( zoomableGroup, "images/stars/umi.png", unitX * 550, unitX * 550 )
-        planet.x = centerX
-        planet.y = centerY + unitY * 100
+		initPlanet()
     end
     initBackground()
 
@@ -421,7 +429,7 @@ function scene:show( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		-- Code here runs when the scene is still off screen (but is about to come on screen)
+		initPlanet()
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
