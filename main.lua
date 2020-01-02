@@ -7,4 +7,4 @@
 local composer = require( "composer" )
 
 math.randomseed( os.time() )
-composer.gotoScene( "select_stars" )
+composer.gotoScene( "game" )

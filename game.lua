@@ -92,10 +92,13 @@ function scene:create( event )
 		local function openSelectStars() 
 			composer.gotoScene( "select_stars", { time=800, effect="crossFade" } )
 		end
+		local function openSettings() 
+			composer.gotoScene( "settings" )
+		end
         placeIcon("images/icon_star.png", 3, openSelectStars)
         placeIcon("images/icon_book.png", 2, openAlbum)
         placeIcon("images/icon_share.png", 1, shareScreenshot)
-        placeIcon("images/icon_setting.png", 0, openAlbum)
+        placeIcon("images/icon_setting.png", 0, openSettings)
 
         planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 550, unitX * 550 )
         planet.x = centerX
