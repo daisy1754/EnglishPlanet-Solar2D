@@ -7,17 +7,6 @@ local centerY = display.contentCenterY
 local unitX = display.contentWidth / 1000.0
 local unitY = display.contentHeight / 1000.0
 
-local starNames = {
-    "umi",
-    "tenki",
-    "kazoku",
-    "koudou",
-    "riku",
-    "norimono",
-    "mono",
-    "jikan",
-    "tabemono"
-}
 local starInfo = {
     { name = "うみの いきもの", image = "umi"},
     { name = "てんき", image = "tenki"},
@@ -125,7 +114,6 @@ function scene:create( event )
         local function adjustZoom() 
             for i, star in ipairs(stars) do
                 local angle = angles[i] + 90
-                print(i, angle, getStarZoom(angle))
                 star:scale(getStarZoom(angle), getStarZoom(angle))
             end
         end
@@ -140,8 +128,8 @@ function scene:create( event )
         adjustZoom()
         adjustZIndex()
 
-        local starNameFrame = display.newRect( mainGroup, centerX, 
-            stars[1].y + stars[1].contentHeight / 2 + unitX * 140,  unitX * 600, unitX * 120 )
+        local starNameFrame = display.newRoundedRect( mainGroup, centerX, 
+            stars[1].y + stars[1].contentHeight / 2 + unitX * 140,  unitX * 600, unitX * 120, unitX * 30 )
         starNameFrame:setFillColor( 1, 1, 1, 0.8 )
 		
 		local titleText = display.newText({
@@ -151,7 +139,7 @@ function scene:create( event )
 			y = starNameFrame.y,
 			width = starNameFrame.contentWidth,
 			font = "fonts/PixelMplus12-Regular.ttf",   
-			fontSize = 24,
+			fontSize = 20,
 			align = "center"
 		})
         titleText:setFillColor( 0 )

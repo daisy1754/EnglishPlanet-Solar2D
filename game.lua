@@ -87,10 +87,10 @@ function scene:create( event )
             icon:addEventListener( "tap", onTap )
 		end
 		local function openAlbum() 
-			composer.gotoScene( "album", { time=800, effect="crossFade" } )
+			composer.gotoScene( "album", { time=200, effect="crossFade" } )
 		end
 		local function openSelectStars() 
-			composer.gotoScene( "select_stars", { time=800, effect="crossFade" } )
+			composer.gotoScene( "select_stars", { time=200, effect="crossFade" } )
 		end
 		local function openSettings() 
 			composer.gotoScene( "settings" )
@@ -100,7 +100,7 @@ function scene:create( event )
         placeIcon("images/icon_share.png", 1, shareScreenshot)
         placeIcon("images/icon_setting.png", 0, openSettings)
 
-        planet = display.newImageRect( zoomableGroup, "images/planet.png", unitX * 550, unitX * 550 )
+        planet = display.newImageRect( zoomableGroup, "images/stars/umi.png", unitX * 550, unitX * 550 )
         planet.x = centerX
         planet.y = centerY + unitY * 100
     end

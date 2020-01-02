@@ -19,8 +19,8 @@ function scene:create( event )
 	mainGroup = display.newGroup()
 	sceneGroup:insert( mainGroup )
 
-	uiGroup = display.newGroup()    -- Display group for UI objects like the score
-	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
+	uiGroup = display.newGroup()
+	sceneGroup:insert( uiGroup )
 	
 	local function initBackground()
 		display.setDefault("background", 183/255, 229/255, 168/255)
@@ -111,7 +111,7 @@ function scene:create( event )
 		local numColumns = 3
 		local function initAlbumItem(index)
 			local frame = display.newRoundedRect(
-				mainGroup, 
+				uiGroup, 
 				unitX * 270 * (index % numColumns) + unitX * 220,
 				unitY * 200 * math.ceil(index / numColumns) + unitY * 230,
 				unitX * 220, 
@@ -120,6 +120,22 @@ function scene:create( event )
 			frame:setStrokeColor( 0 )
 			frame.strokeWidth = 3
 			frame:setFillColor( 1 )
+
+			local img = display.newImageRect(uiGroup, "images/hakase1.png", unitX * 200, unitX * 200)
+			img.x = frame.x
+			img.y = frame.y
+
+			local name = display.newText({
+				parent = uiGroup,
+				text = "もの はかせ",     
+				x = frame.x,
+				y = frame.y + frame.contentHeight / 2 - 16,
+				width = frame.contentWidth,
+				font = "fonts/PixelMplus12-Regular.ttf",   
+				fontSize = 16,
+				align = "center"
+			})
+			name:setFillColor( 0 )
 		end
 
 		for i=1,9 do
