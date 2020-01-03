@@ -31,6 +31,10 @@ local planet
 local bgm
 
 function initPlanet()
+    if planet ~= nil then
+        planet:removeSelf()
+    end
+
 	local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
 	planet = display.newImageRect( zoomableGroup, "images/stars/" .. starInfo[starIndex].image .. ".png", unitX * 550, unitX * 550 )
 	planet.x = centerX
@@ -146,6 +150,7 @@ function scene:create( event )
             time = 600
         },
     })
+    player:play()
 
 	local function resetPlayer()
 		player.x = planet.x
