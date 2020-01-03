@@ -1,15 +1,15 @@
 local db = require( "db" )
 
 local stars = {
-    { name = "うみの いきもの", image = "umi"},
-    { name = "てんき", image = "tenki"},
-    { name = "かぞく", image = "kazoku"},
-    { name = "こうどう", image = "koudou"},
-    { name = "りくの いきもの", image = "riku"},
-    { name = "のりもの", image = "norimono"},
-    { name = "もの", image = "mono"},
-    { name = "じかん", image = "jikan"},
-    { name = "たべもの", image = "tabemono"},
+    { name = "うみの いきもの", image = "umi", music="umi" },
+    { name = "てんき", image = "tenki", music="tenki" },
+    { name = "かぞく", image = "kazoku", music="kazoku" },
+    { name = "こうどう", image = "koudou", music="koudou" },
+    { name = "りくの いきもの", image = "riku", music="riku" },
+    { name = "のりもの", image = "norimono", music="norimono" },
+    { name = "もの", image = "mono", music="mono" },
+    { name = "じかん", image = "jikan", music="jikan" },
+    { name = "たべもの", image = "tabemono", music="tabemono" },
 }
 
 return stars

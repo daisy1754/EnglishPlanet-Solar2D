@@ -1,4 +1,5 @@
 local composer = require( "composer" )
+local db = require( "db" )
 local widget = require( "widget" )
 local social = require( "social" )
 local quiz = require( "quiz" )
@@ -27,6 +28,7 @@ local thankYou = {
 
 local zoomableGroup
 local planet
+local bgm
 
 function initPlanet()
 	local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
@@ -37,9 +39,6 @@ end
 
 function scene:create( event ) 
     local sceneGroup = self.view
-    -- music
-    local gameMusic = audio.loadStream( "music/main.mp3" )
-    audio.play( gameMusic, { loops = -1 } )
 	
 	local category = 'fruit'
 	local stars
@@ -295,6 +294,7 @@ function scene:create( event )
 		} )
 	end
 
+    local hasFailed = false
     local function toggleBalloon()
         balloon.isVisible = false
         balloonText.isVisible = false
@@ -302,7 +302,8 @@ function scene:create( event )
         if game_state == state_init then
             game_state = state_quiz_start
 			balloon:play()
-			words = quiz.startQuiz(category)
+            words = quiz.startQuiz(category)
+            hasFailed = false
 			balloonText.text = 'ねぇ   '..words.answer.word..'   って\nどういう いみ だっけ?'
 			zoom(2, 500, scheduleShowBalloon)
 
@@ -345,7 +346,10 @@ function scene:create( event )
 								balloonText.text = "そうだ!\n" .. words.answer.translation .. "だった!"
 								showBalloon()
 							end
-							timer.performWithDelay(1000, showCorrectMsg, 1)
+                            timer.performWithDelay(1000, showCorrectMsg, 1)
+                            if not hasFailed then
+                                db.markWordAsKnown(words.answer.word)
+                            end
                         else 
 							game_state = state_quiz_answer_incorrect
 							playEffect("incorrect", 1500)
@@ -353,7 +357,8 @@ function scene:create( event )
 								balloonText.text = "うーん\nちがうような"
 								showBalloon()
 							end
-							timer.performWithDelay(1000, showIncorrectMsg, 1)
+                            timer.performWithDelay(1000, showIncorrectMsg, 1)
+                            hasFailed = true
                         end
                     end
                     for i=1,3 do
@@ -429,7 +434,11 @@ function scene:show( event )
 	local phase = event.phase
 
 	if ( phase == "will" ) then
-		initPlanet()
+        initPlanet()
+        -- music
+        local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
+        bgm = audio.loadStream( "music/" .. starInfo[starIndex].music .. ".mp3" )
+        audio.play( bgm, { loops = -1 } )
 
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
@@ -446,7 +455,7 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 
 	elseif ( phase == "did" ) then
-		-- Code here runs immediately after the scene goes entirely off screen
+        audio.pause(bgm)
 
 	end
 end

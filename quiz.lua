@@ -7,6 +7,8 @@ function module.startQuiz(category)
     local answer = t[math.random(#t)]
     local other1, other2
     
+    db.markWordAsSeen(answer.word)
+
     while true do
         other1 = t[math.random(#t)]
         if answer["translation"] ~= other1["translation"] then break end

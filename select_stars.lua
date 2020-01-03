@@ -22,7 +22,7 @@ local angles = {
 
 local swipeStar
 local stars = {}
-local currentOffset = 1
+local currentOffset
 
 local function touchHandler(event)
     local swipeLength = math.abs(event.x - event.xStart) 
@@ -54,6 +54,8 @@ function scene:create( event )
 
 	uiGroup = display.newGroup()    -- Display group for UI objects like the score
 	sceneGroup:insert( uiGroup )    -- Insert into the scene's view group
+
+    currentOffset = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
 
 	local function initBackground()
         local background = display.newImageRect( bgGroup, "images/bg_blue.png", display.contentWidth, display.contentHeight )
@@ -95,13 +97,14 @@ function scene:create( event )
 
     local function initStars()
         stars = {}
-        for i, info in ipairs(starInfo) do
-            local star = display.newImageRect(mainGroup, "images/stars/" .. info.image .. ".png", unitX * 300, unitX * 300)
-            local angle = angles[i] + 90
+        for i in ipairs(starInfo) do
+            local index = (i - currentOffset) % #starInfo + 1
+            local star = display.newImageRect(mainGroup, "images/stars/" .. starInfo[i].image .. ".png", unitX * 300, unitX * 300)
+            local angle = angles[index] + 90
             local position = getStarPosition(angle)
             star.x = position.x
             star.y = position.y
-            stars[#stars + 1] = star
+            stars[index] = star
         end
         local function adjustZoom() 
             for i, star in ipairs(stars) do
@@ -127,7 +130,7 @@ function scene:create( event )
 		
 		local titleText = display.newText({
 			parent = mainGroup,
-			text = starInfo[1].name .. " プラネット",     
+			text = starInfo[currentOffset].name .. " プラネット",     
 			x = starNameFrame.x,
 			y = starNameFrame.y,
 			width = starNameFrame.contentWidth,

@@ -15,25 +15,28 @@ local function openDBAndInit()
     end
     Runtime:addEventListener( "system", onSystemEvent )
 
+    -- debug
+--    db:exec( 'DROP TABLE IF EXISTS words;')
+
     -- Set up the table if it doesn't exist
     local tablesetup = [[CREATE TABLE IF NOT EXISTS words (
         id INTEGER PRIMARY KEY, 
         word TEXT UNIQUE,
         translation TEXT,
         category TEXT,
-        count INTEGER
+        seen INTEGER,
+        known INTEGER
     );]]
     local ret = db:exec( tablesetup )
     print(ret)
 
-    local tablefill = [[INSERT INTO words VALUES (NULL, 'apple', 'りんご', 'fruit', 0); ]]
-    local tablefill2 = [[INSERT INTO words VALUES (NULL, 'orange', 'みかん', 'fruit', 0); ]]
-    local tablefill3 = [[INSERT INTO words VALUES (NULL, 'strawberry', 'いちご', 'fruit', 0); ]]
-    local tablefill3 = [[INSERT INTO words VALUES (NULL, 'grape', 'ぶどう', 'fruit', 0); ]]
-    local tablefill3 = [[INSERT INTO words VALUES (NULL, 'watermelon', 'すいか', 'fruit', 0); ]]
-    db:exec( tablefill )
-    db:exec( tablefill2 )
-    db:exec( tablefill3 )
+    local insert = [[INSERT INTO words ('id', 'word', 'translation', 'category', 'seen', 'known') VALUES
+      (1, 'apple', 'りんご', 'fruit', 0, 0),
+      (2, 'orange', 'みかん', 'fruit', 0, 0),
+      (3, 'strawberry', 'いちご', 'fruit', 0, 0),
+      (4, 'grape', 'ぶどう', 'fruit', 0, 0),
+      (5, 'watermelon', 'すいか', 'fruit', 0, 0); ]]
+    db:exec( insert )
 
     print( "SQLite version " .. sqlite3.version() )
 end
@@ -48,11 +51,20 @@ function module.getWordsForCategory(category)
             id = row.id,
             word = row.word,
             translation = row.translation,
-            count = row.count
+            seen = row.seen ~= 0,
+            known = row.known ~= 0
         }
         index = index + 1
     end
     return arr
+end
+
+function module.markWordAsSeen(word)
+    return db:exec(string.format("UPDATE words SET seen = 1 WHERE word='%s'", word))
+end
+
+function module.markWordAsKnown(word)
+    return db:exec(string.format("UPDATE words SET known = 1 WHERE word='%s'", word))
 end
 
 return module
