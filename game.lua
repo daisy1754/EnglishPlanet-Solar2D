@@ -29,6 +29,7 @@ local thankYou = {
 local zoomableGroup
 local planet
 local bgm
+local advanceGame
 
 function initPlanet()
     if planet ~= nil then
@@ -38,7 +39,10 @@ function initPlanet()
 	local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
 	planet = display.newImageRect( zoomableGroup, "images/stars/" .. starInfo[starIndex].image .. ".png", unitX * 550, unitX * 550 )
 	planet.x = centerX
-	planet.y = centerY + unitY * 100
+    planet.y = centerY + unitY * 100
+    if advanceGame ~= nil then
+        planet:addEventListener( "tap", advanceGame )
+    end
 end
 
 function scene:create( event ) 
@@ -55,7 +59,8 @@ function scene:create( event )
     local state_quiz_start = 2
     local state_quiz_accept_answer = 3
     local state_quiz_answer_correct = 4
-    local state_quiz_answer_incorrect = 5
+    local state_quiz_answer_correct_wait_transition = 5
+    local state_quiz_answer_incorrect = 6
     local game_state = state_init
 
     local bgGroup = display.newGroup()
@@ -300,7 +305,7 @@ function scene:create( event )
 	end
 
     local hasFailed = false
-    local function toggleBalloon()
+    advanceGame = function()
         balloon.isVisible = false
         balloonText.isVisible = false
         transition.fadeOut(stars)
@@ -404,18 +409,22 @@ function scene:create( event )
 			end
 		elseif game_state == state_quiz_accept_answer then
 			-- wait for answer, ignore tap
-		elseif game_state == state_quiz_answer_correct then
+        elseif game_state == state_quiz_answer_correct then
+            game_state = state_quiz_answer_correct_wait_transition
 			balloonText.text = thankYou[math.random(#thankYou)]
 			showBalloon()
 			local function endQuiz()
 				hideBalloon()
-				game_state = state_init
-				zoom(1, 500)
-
-				resetPlayer()
-				placeAlien(selectedAlien)
+                function resetThings()
+                    game_state = state_init
+                    resetPlayer()
+                    placeAlien(selectedAlien)
+                end
+				zoom(1, 300, resetThings)
 			end
 			timer.performWithDelay(2000, endQuiz, 1)
+        elseif game_state == state_quiz_answer_correct_wait_transition then
+            -- ignore tap
 		elseif game_state == state_quiz_answer_incorrect then
 			game_state = state_quiz_start
 			words = quiz.startQuiz(category)
@@ -428,9 +437,8 @@ function scene:create( event )
         end
     end
     
-    planet:addEventListener( "tap", toggleBalloon )
-    balloon:addEventListener( "tap", toggleBalloon )
-    balloonText:addEventListener( "tap", toggleBalloon )
+    balloon:addEventListener( "tap", advanceGame )
+    balloonText:addEventListener( "tap", advanceGame )
 end
 
 function scene:show( event )

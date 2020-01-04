@@ -16,26 +16,41 @@ local function openDBAndInit()
     Runtime:addEventListener( "system", onSystemEvent )
 
     -- debug
---    db:exec( 'DROP TABLE IF EXISTS words;')
+    db:exec( 'DROP TABLE IF EXISTS words;')
 
     -- Set up the table if it doesn't exist
     local tablesetup = [[CREATE TABLE IF NOT EXISTS words (
-        id INTEGER PRIMARY KEY, 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
         word TEXT UNIQUE,
         translation TEXT,
         category TEXT,
-        seen INTEGER,
-        known INTEGER
+        seen INTEGER DEFAULT 0,
+        known INTEGER DEFAULT 0
     );]]
     local ret = db:exec( tablesetup )
     print(ret)
 
-    local insert = [[INSERT INTO words ('id', 'word', 'translation', 'category', 'seen', 'known') VALUES
-      (1, 'apple', 'りんご', 'fruit', 0, 0),
-      (2, 'orange', 'みかん', 'fruit', 0, 0),
-      (3, 'strawberry', 'いちご', 'fruit', 0, 0),
-      (4, 'grape', 'ぶどう', 'fruit', 0, 0),
-      (5, 'watermelon', 'すいか', 'fruit', 0, 0); ]]
+    local insert = [[INSERT INTO words ('word', 'translation', 'category') VALUES('apple ', 'りんご', 'fruit'),
+        ('orange', 'みかん', 'fruit'),
+        ('strawberry', 'いちご', 'fruit'),
+        ('grape', 'ぶどう', 'fruit'),
+        ('watermelon', 'すいか', 'fruit'),
+        ('tea', 'おちゃ', 'fruit'),
+        ('coffee', 'コーヒー', 'fruit'),
+        ('milk', 'ぎゅうにゅう', 'fruit'),
+        ('rice', 'ごはん', 'fruit'),
+        ('soup', 'スープ', 'fruit'),
+        ('egg', 'たまご', 'fruit'),
+        ('pizza', 'ピザ', 'fruit'),
+        ('chocolate', 'チョコレート', 'fruit'),
+        ('pumpkin', 'かぼちゃ', 'fruit'),
+        ('potato', 'じゃがいも', 'fruit'),
+        ('onion', 'たまねぎ', 'fruit'),
+        ('carrot', 'にんじん', 'fruit'),
+        ('chiken', 'とりにく', 'fruit'),
+        ('bread', 'パン', 'fruit'),
+        ('water', 'みず', 'fruit');
+    ]]
     db:exec( insert )
 
     print( "SQLite version " .. sqlite3.version() )
