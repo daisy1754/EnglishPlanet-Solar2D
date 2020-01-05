@@ -30,7 +30,6 @@ local thankYou = {
 local zoomableGroup
 local planet
 local bgm
-local advanceGame
 
 function initPlanet()
     if planet ~= nil then
@@ -41,9 +40,6 @@ function initPlanet()
 	planet = display.newImageRect( zoomableGroup, "images/stars/" .. starInfo[starIndex].image .. ".png", unitX * 550, unitX * 550 )
 	planet.x = centerX
     planet.y = centerY + unitY * 100
-    if advanceGame ~= nil then
-        planet:addEventListener( "tap", advanceGame )
-    end
 end
 
 function scene:create( event ) 
@@ -282,7 +278,7 @@ function scene:create( event )
 	end
 
     local hasFailed = false
-    advanceGame = function()
+    local advanceGame = function()
         balloon.isVisible = false
         balloonText.isVisible = false
         transition.fadeOut(stars)
@@ -353,6 +349,7 @@ function scene:create( event )
                             transition.fadeOut( buttons[i], { time=400, onComplete=onAnswer } )
                         end
                     end
+                    return true
                 end
                 local button = widget.newButton(
                     {
@@ -404,7 +401,6 @@ function scene:create( event )
             -- ignore tap
 		elseif game_state == state_quiz_answer_incorrect then
 			game_state = state_quiz_start
-			words = quiz.startQuiz(category)
 			balloonText.text = 'ねぇ   '..words.answer.word..'   って\nどういう いみ だっけ?'
 			zoom(2, 300)
 			showBalloon()
@@ -413,9 +409,8 @@ function scene:create( event )
 			print('invalid state')
         end
     end
-    
-    balloon:addEventListener( "tap", advanceGame )
-    balloonText:addEventListener( "tap", advanceGame )
+
+    bgGroup:addEventListener( "tap", advanceGame )
 end
 
 function scene:show( event )

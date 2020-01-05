@@ -66,9 +66,15 @@ function scene:create( event )
 		buttons[#buttons + 1] = button
 	end
 
+	local function openGame() 
+		composer.gotoScene( "game" )
+	end
+
 	initBackground()
 	placeButton("クレジット", openCredit)
 	placeButton("サウンド " .. (soundEnabled and "OFF" or "ON" ), toggleSound)
+	placeButton("レビュー をかく", openGame)
+	placeButton("もどる", openGame)
 end
 
 function scene:show( event )

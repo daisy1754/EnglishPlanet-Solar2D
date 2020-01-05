@@ -21,15 +21,19 @@ function module.renderMenus()
     end
     local function openAlbum() 
         composer.gotoScene( "album", { time=200, effect="crossFade" } )
+        return true
     end
     local function openSelectStars() 
         composer.gotoScene( "select_stars", { time=200, effect="crossFade" } )
+        return true
     end
     local function shareScreenshot()
         social.shareScreenshot(display.currentStage)
+        return true
     end
     local function openSettings() 
         composer.gotoScene( "settings" )
+        return true
     end
     placeIcon("images/icon_star.png", 3, openSelectStars)
     placeIcon("images/icon_book.png", 2, openAlbum)
