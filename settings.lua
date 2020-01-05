@@ -1,5 +1,6 @@
 local composer = require( "composer" )
 local widget = require( "widget" )
+local sounds = require( "sounds" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -8,11 +9,12 @@ local centerY = display.contentCenterY
 local unitX = display.contentWidth / 1000.0
 local unitY = display.contentHeight / 1000.0
 
+local soundEnabled = system.getPreference( "app", "soundEnabled", "boolean" )
+
 function scene:create( event ) 
 	local sceneGroup = self.view
 
-    local gameMusic = audio.loadStream( "music/main.mp3" )
-	audio.play( gameMusic, { loops = -1 } )
+	sounds.playMusic( "music/main.mp3" )
 
 	bgGroup = display.newGroup()
 	sceneGroup:insert( bgGroup )
@@ -34,6 +36,12 @@ function scene:create( event )
 	end
 
 	local buttons = {}
+	local function toggleSound() 
+		soundEnabled = not soundEnabled
+		local updated = system.setPreferences( "app", { soundEnabled=soundEnabled })
+		buttons[2]:setLabel("サウンド " .. (soundEnabled and "OFF" or "ON" ))
+	end
+
 	local function placeButton(label, onPress)
 		local button = widget.newButton(
 			{
@@ -60,6 +68,7 @@ function scene:create( event )
 
 	initBackground()
 	placeButton("クレジット", openCredit)
+	placeButton("サウンド " .. (soundEnabled and "OFF" or "ON" ), toggleSound)
 end
 
 function scene:show( event )

@@ -1,4 +1,5 @@
 local composer = require( "composer" )
+local sounds = require( "sounds" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -10,8 +11,7 @@ local unitY = display.contentHeight / 1000.0
 function scene:create( event ) 
 	local sceneGroup = self.view
 
-    local gameMusic = audio.loadStream( "music/main.mp3" )
-	audio.play( gameMusic, { loops = -1 } )
+	sounds.playMusic( "music/main.mp3" )
 
 	bgGroup = display.newGroup()
 	sceneGroup:insert( bgGroup )

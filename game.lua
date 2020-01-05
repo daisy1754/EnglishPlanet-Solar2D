@@ -4,6 +4,7 @@ local widget = require( "widget" )
 local social = require( "social" )
 local quiz = require( "quiz" )
 local starInfo = require( "stars" )
+local sounds = require( "sounds" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -342,7 +343,7 @@ function scene:create( event )
 						end
 						
 						local function playEffect(name, delayToStandby)
-							audio.play( soundTable[name] )
+							sounds.playEffect( soundTable[name] )
                             player:setSequence(name)
                             player:play()
 							timer.performWithDelay(delayToStandby, standby, 1)
@@ -448,11 +449,9 @@ function scene:show( event )
 
 	if ( phase == "will" ) then
         initPlanet()
-        -- music
-        local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
-        bgm = audio.loadStream( "music/" .. starInfo[starIndex].music .. ".mp3" )
-        audio.play( bgm, { loops = -1 } )
 
+        local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
+        bgm = sounds.playMusic( "music/" .. starInfo[starIndex].music .. ".mp3" )
 	elseif ( phase == "did" ) then
 		-- Code here runs when the scene is entirely on screen
 
@@ -468,7 +467,7 @@ function scene:hide( event )
 		-- Code here runs when the scene is on screen (but is about to go off screen)
 
 	elseif ( phase == "did" ) then
-        audio.pause(bgm)
+        sounds.pause(bgm)
 
 	end
 end

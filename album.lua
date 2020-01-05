@@ -1,6 +1,7 @@
 local composer = require( "composer" )
 local db = require("db")
 local widget = require( "widget" )
+local sounds = require( "sounds" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -16,8 +17,7 @@ function scene:create( event )
 	local imgs = {}
 	local names = {}
 
-    local gameMusic = audio.loadStream( "music/album.mp3" )
-	audio.play( gameMusic, { loops = -1 } )
+	sounds.playMusic( "music/album.mp3" )
 	
 	bgGroup = display.newGroup()
 	sceneGroup:insert( bgGroup )
