@@ -1,10 +1,10 @@
 local composer = require( "composer" )
 local db = require( "db" )
-local widget = require( "widget" )
-local social = require( "social" )
+local menus = require( "menus" )
 local quiz = require( "quiz" )
 local starInfo = require( "stars" )
 local sounds = require( "sounds" )
+local widget = require( "widget" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -92,32 +92,8 @@ function scene:create( event )
         end
         animateBackground()
 
-		local function shareScreenshot()
-	        social.shareScreenshot(display.currentStage)
-        end
-        local function placeIcon(src, index, onTap)
-            icon = display.newImageRect( bgGroup, src, unitX * 140, unitX * 140 )
-            icon.x = display.contentWidth - unitX * 140 * index - unitX * 80
-            if index == 3 then
-                icon.x = icon.x - unitX * 15
-            end
-            icon.y = unitY * 70
-
-            icon:addEventListener( "tap", onTap )
-		end
-		local function openAlbum() 
-			composer.gotoScene( "album", { time=200, effect="crossFade" } )
-		end
-		local function openSelectStars() 
-			composer.gotoScene( "select_stars", { time=200, effect="crossFade" } )
-		end
-		local function openSettings() 
-			composer.gotoScene( "settings" )
-		end
-        placeIcon("images/icon_star.png", 3, openSelectStars)
-        placeIcon("images/icon_book.png", 2, openAlbum)
-        placeIcon("images/icon_share.png", 1, shareScreenshot)
-        placeIcon("images/icon_setting.png", 0, openSettings)
+        local menuGroup = menus.renderMenus()
+        sceneGroup:insert(menuGroup)
 
 		initPlanet()
     end

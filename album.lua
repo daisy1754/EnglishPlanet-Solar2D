@@ -1,7 +1,8 @@
 local composer = require( "composer" )
 local db = require("db")
-local widget = require( "widget" )
+local menus = require( "menus" )
 local sounds = require( "sounds" )
+local widget = require( "widget" )
 local scene = composer.newScene()
 
 local centerX = display.contentCenterX
@@ -14,6 +15,7 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	local frame
+	local menuGroup
 	local imgs = {}
 	local names = {}
 
@@ -84,6 +86,8 @@ function scene:create( event )
 			y = y + height + yMargin
 		end
 
+		menuGroup = menus.renderMenus()
+		sceneGroup:insert(menuGroup)
 	end
 
 	local function initAlbumFrame()

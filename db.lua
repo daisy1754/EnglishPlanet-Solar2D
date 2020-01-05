@@ -16,7 +16,7 @@ local function openDBAndInit()
     Runtime:addEventListener( "system", onSystemEvent )
 
     -- debug
-    db:exec( 'DROP TABLE IF EXISTS words;')
+--    db:exec( 'DROP TABLE IF EXISTS words;')
 
     -- Set up the table if it doesn't exist
     local tablesetup = [[CREATE TABLE IF NOT EXISTS words (
