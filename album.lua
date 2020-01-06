@@ -146,7 +146,7 @@ function scene:create( event )
 		local function showName()
 			names[index].isVisible = false
 			local name = display.newText({
-				parent = animationDuration,
+				parent = detailsGroup,
 				text = "もの はかせ",     
 				x = centerX,
 				y = centerY - unitY * 200,
@@ -168,7 +168,7 @@ function scene:create( event )
 		})
 		
 		local function showWords()
-			local category = 'fruit'
+			local category = 'food'
 			local words = db.getWordsForCategory(category)
 			local function onRowRender( event )
 				local row = event.row
@@ -212,14 +212,15 @@ function scene:create( event )
    
 		   local tableView = widget.newTableView(
 			   {
-				   x = centerX,
-				   y = centerY + unitY * 150,
-				   height = unitY * 600,
-				   width = unitX * 900,
-				   backgroundColor = { 0, 0, 0, 0 },
-				   onRowRender = onRowRender,
+					x = centerX,
+					y = centerY + unitY * 150,
+					height = unitY * 600,
+					width = unitX * 900,
+					backgroundColor = { 0, 0, 0, 0 },
+					onRowRender = onRowRender,
 			   }
 		   )
+		   detailsGroup:insert(tableView)
    
 		   for i = 1, #words do
 			   -- Insert a row into the tableView
