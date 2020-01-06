@@ -1,4 +1,5 @@
 local sqlite3 = require( "sqlite3" )
+local seed = require( "db_seed" )
 local module = {}
 
 local db
@@ -16,7 +17,7 @@ local function openDBAndInit()
     Runtime:addEventListener( "system", onSystemEvent )
 
     -- debug
---    db:exec( 'DROP TABLE IF EXISTS words;')
+    db:exec( 'DROP TABLE IF EXISTS words;')
 
     -- Set up the table if it doesn't exist
     local tablesetup = [[CREATE TABLE IF NOT EXISTS words (
@@ -30,28 +31,7 @@ local function openDBAndInit()
     local ret = db:exec( tablesetup )
     print(ret)
 
-    local insert = [[INSERT INTO words ('word', 'translation', 'category') VALUES('apple ', 'りんご', 'fruit'),
-        ('orange', 'みかん', 'fruit'),
-        ('strawberry', 'いちご', 'fruit'),
-        ('grape', 'ぶどう', 'fruit'),
-        ('watermelon', 'すいか', 'fruit'),
-        ('tea', 'おちゃ', 'fruit'),
-        ('coffee', 'コーヒー', 'fruit'),
-        ('milk', 'ぎゅうにゅう', 'fruit'),
-        ('rice', 'ごはん', 'fruit'),
-        ('soup', 'スープ', 'fruit'),
-        ('egg', 'たまご', 'fruit'),
-        ('pizza', 'ピザ', 'fruit'),
-        ('chocolate', 'チョコレート', 'fruit'),
-        ('pumpkin', 'かぼちゃ', 'fruit'),
-        ('potato', 'じゃがいも', 'fruit'),
-        ('onion', 'たまねぎ', 'fruit'),
-        ('carrot', 'にんじん', 'fruit'),
-        ('chiken', 'とりにく', 'fruit'),
-        ('bread', 'パン', 'fruit'),
-        ('water', 'みず', 'fruit');
-    ]]
-    db:exec( insert )
+    db:exec( seed.seedQuery )
 
     print( "SQLite version " .. sqlite3.version() )
 end

@@ -1,5 +1,6 @@
 local composer = require( "composer" )
 local db = require("db")
+local flurry = require( "flurry" )
 local menus = require( "menus" )
 local sounds = require( "sounds" )
 local widget = require( "widget" )
@@ -290,7 +291,7 @@ function scene:show( event )
 		-- Code here runs when the scene is still off screen (but is about to come on screen)
 
 	elseif ( phase == "did" ) then
-		-- Code here runs when the scene is entirely on screen
+		flurry.recordCurrentScreen()
 
 	end
 end

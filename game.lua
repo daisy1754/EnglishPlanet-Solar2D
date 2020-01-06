@@ -1,5 +1,6 @@
 local composer = require( "composer" )
 local db = require( "db" )
+local flurry = require( "flurry" )
 local menus = require( "menus" )
 local quiz = require( "quiz" )
 local starInfo = require( "stars" )
@@ -44,8 +45,7 @@ end
 
 function scene:create( event ) 
     local sceneGroup = self.view
-	
-	local category = 'fruit'
+
 	local stars
 	local placeAlien
 	local words
@@ -285,7 +285,8 @@ function scene:create( event )
         if game_state == state_init then
             game_state = state_quiz_start
 			balloon:play()
-            words = quiz.startQuiz(category)
+            local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
+            words = quiz.startQuiz(starInfo[starIndex].db)
             hasFailed = false
 			balloonText.text = 'ねぇ   '..words.answer.word..'   って\nどういう いみ だっけ?'
 			zoom(2, 500, scheduleShowBalloon)
@@ -424,8 +425,7 @@ function scene:show( event )
         local starIndex = system.getPreference( "app", "selectedStarIndex", "number" ) or 1
         bgm = sounds.playMusic( "music/" .. starInfo[starIndex].music .. ".mp3" )
 	elseif ( phase == "did" ) then
-		-- Code here runs when the scene is entirely on screen
-
+        flurry.recordCurrentScreen()
 	end
 end
 
