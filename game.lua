@@ -362,7 +362,7 @@ function scene:create( event )
                         labelColor = { default={ 0, 0, 0 }, over={ 0,0,0 } },
                         font = "fonts/PixelMplus12-Bold.ttf",
                         fontSize = unitX * 80,
-                        fillColor = { default={1,1,1,1}, over={1,1,1,1} },
+                        fillColor = { default={1,1,1,0.8}, over={1,1,1,1} },
                         onPress = onPress
                     }
                 )
