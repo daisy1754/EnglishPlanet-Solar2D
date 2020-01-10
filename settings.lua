@@ -53,7 +53,7 @@ function scene:create( event )
 				height = display.contentHeight * 0.1,
 				cornerRadius = unitX * 40,
 				labelColor = { default={ 1 }, over={ 1 } },
-				font = "fonts/PixelMplus12-Regular.ttf",
+				font = "fonts/PixelMplus12-Bold.ttf",
 				fillColor = { default={ 0, 0, 0, 0 }, over={ 0, 0, 0, 0 } },
 				fontSize = unitX * 80,
 				strokeColor = { default={ 1 }, over={ 1 } },

@@ -135,7 +135,7 @@ function scene:create( event )
 			x = starNameFrame.x,
 			y = starNameFrame.y,
 			width = starNameFrame.contentWidth,
-			font = "fonts/PixelMplus12-Regular.ttf",   
+			font = "fonts/PixelMplus12-Bold.ttf",   
 			fontSize = 20,
 			align = "center"
 		})

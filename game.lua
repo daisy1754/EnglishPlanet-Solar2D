@@ -245,7 +245,7 @@ function scene:create( event )
         y = balloon.y,
         width = balloon.contentWidth - unitX * 120,
         height = balloon.contentHeight - unitY * 60,
-        font = "fonts/PixelMplus12-Regular.ttf",   
+        font = "fonts/PixelMplus12-Bold.ttf",   
         fontSize = 16,
         align = "center"
     })
@@ -360,7 +360,7 @@ function scene:create( event )
                         height = display.contentHeight * 0.1,
                         cornerRadius = unitX * 40,
                         labelColor = { default={ 0, 0, 0 }, over={ 0,0,0 } },
-                        font = "fonts/PixelMplus12-Regular.ttf",
+                        font = "fonts/PixelMplus12-Bold.ttf",
                         fontSize = unitX * 80,
                         fillColor = { default={1,1,1,1}, over={1,1,1,1} },
                         onPress = onPress

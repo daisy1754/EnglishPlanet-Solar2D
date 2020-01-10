@@ -103,7 +103,7 @@ function scene:create( event )
 			x = centerX,
 			y = centerY - unitY * 220,
 			width = frame.contentWidth,
-			font = "fonts/PixelMplus12-Regular.ttf",   
+			font = "fonts/PixelMplus12-Bold.ttf",   
 			fontSize = 24,
 			align = "center"
 		})
@@ -114,7 +114,7 @@ function scene:create( event )
 			x = centerX,
 			y = centerY - unitY * 220 + 30,
 			width = frame.contentWidth,
-			font = "fonts/PixelMplus12-Regular.ttf",   
+			font = "fonts/PixelMplus12-Bold.ttf",   
 			fontSize = 16,
 			align = "center"
 		})
@@ -152,7 +152,7 @@ function scene:create( event )
 				y = centerY - unitY * 200,
 				width = display.contentWidth,
 				fontSize = 24,
-				font = "fonts/PixelMplus12-Regular.ttf", 
+				font = "fonts/PixelMplus12-Bold.ttf", 
 				align = "center"
 			})
 			name:setFillColor( 0 )
@@ -185,7 +185,7 @@ function scene:create( event )
 				   parent = row,
 				   text = wordLabel,     
 				   fontSize = 24,
-				   font = "fonts/PixelMplus12-Regular.ttf", 
+				   font = "fonts/PixelMplus12-Bold.ttf", 
 				   width = rowWidth / 2
 			   })
 			   word:setFillColor( 0 )
@@ -201,7 +201,7 @@ function scene:create( event )
 					parent = row,
 					text = translationLabel,     
 					fontSize = 24,
-					font = "fonts/PixelMplus12-Regular.ttf", 
+					font = "fonts/PixelMplus12-Bold.ttf", 
 					width = rowWidth / 2
 				})
 				translation:setFillColor( 0 )
@@ -265,7 +265,7 @@ function scene:create( event )
 				x = frame.x,
 				y = frame.y + frame.contentHeight / 2 - 16,
 				width = frame.contentWidth,
-				font = "fonts/PixelMplus12-Regular.ttf",   
+				font = "fonts/PixelMplus12-Bold.ttf",   
 				fontSize = 16,
 				align = "center"
 			})
